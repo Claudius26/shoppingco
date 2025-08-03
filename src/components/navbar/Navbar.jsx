@@ -18,14 +18,15 @@ const Navbar = () => {
   };
 
   return (
-    <header className="flex items-center justify-between max-w-7xl mx-auto px-20 py-4 shadow-md bg-white relative">
+    <header className="flex items-center justify-between max-w-7xl mx-auto px-6 md:px-20 py-4 shadow-md bg-white relative">
+
       <div className="flex items-center space-x-4">
-        <h2 className="text-2xl font-bold text-gray-800">SHOP.CO</h2>
         <div className="md:hidden">
           <button onClick={toggleMobileMenu}>
             <span className="text-2xl font-bold cursor-pointer">&#9776;</span>
           </button>
         </div>
+        <h2 className="text-2xl font-bold text-gray-800">SHOP.CO</h2>
       </div>
 
       <nav className="hidden md:flex space-x-6 text-gray-600 text-sm font-medium">

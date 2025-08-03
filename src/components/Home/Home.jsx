@@ -5,7 +5,7 @@ import vector from '../../images/Vector.svg';
 
 const HomeView = () => {
   return (
-    <div className="bg-[#F0F0F0] flex flex-col md:flex-row justify-between items-center px-6 md:px-20 py-16 relative overflow-visible">
+    <div className="bg-[#F0F0F0] flex flex-col md:flex-row justify-between items-center px-6 md:px-20 py-16 pb-0 mb-0 relative overflow-hidden">
       <div className="md:w-1/2 space-y-6 z-10 relative">
         <h1 className="md:text-[50px] font-extrabold text-black leading-tight">
           FIND CLOTHES <br /> THAT MATCHES YOUR STYLE
