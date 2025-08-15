@@ -1,12 +1,66 @@
-import React from 'react'
+import React, { useState, useRef } from 'react';
+import { useGetAllProductsQuery } from '../../products/productApiSlice';
 
 const TopSelling = () => {
-  return (
-    <div>
-      <h1 className="text-3xl font-bold text-center my-8">Top Selling</h1>
-      <button className="bg-blue-500 text-white px-4 py-2 rounded">View More</button>
-    </div>
-  )
-}
+  const { data: products, isLoading, error } = useGetAllProductsQuery();
+  const [showAll, setShowAll] = useState(false);
+  const sectionRef = useRef(null);
 
-export default TopSelling
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Unable to load products. {error.message}</div>;
+
+  const topSelling = products
+    .slice()
+    .sort((a, b) => b.rating.count - a.rating.count);
+
+  const visibleProducts = showAll ? topSelling : topSelling.slice(0, 4);
+
+  const toggleView = () => {
+    if (showAll && sectionRef.current) {
+      sectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    setShowAll((prev) => !prev);
+  };
+
+  return (
+    <section ref={sectionRef} className="py-12 px-20">
+      <h2 className="text-4xl font-bold mb-6 text-center">Top Selling Products</h2>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {visibleProducts.map((product) => (
+          <div
+            key={product.id}
+            className="border rounded-lg p-4 shadow hover:shadow-lg transition"
+          >
+            <div className="bg-gray-100 p-4 rounded-md h-40 flex justify-center items-center mb-2">
+              <img
+                src={product.image}
+                alt={product.title}
+                className="h-full object-contain"
+              />
+            </div>
+            <h3 className="text-sm font-medium">{product.title.slice(0, 35)}...</h3>
+            <p className="text-green-600 font-semibold mt-1">${product.price}</p>
+            <div className="flex items-center mt-2 text-yellow-500 text-sm">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <span key={i}>
+                  {i < Math.round(product.rating.rate) ? '★' : '☆'}
+                </span>
+              ))}
+              <span className="text-gray-600 ml-2">{product.rating.rate}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="text-center mt-6">
+        <button
+          onClick={toggleView}
+          className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
+        >
+          {showAll ? 'View Less' : 'View More'}
+        </button>
+      </div>
+    </section>
+  );
+};
+
+export default TopSelling;
