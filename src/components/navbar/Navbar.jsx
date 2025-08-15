@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router';
 import searchIcon from '../../images/search.svg';
 import cartIcon from '../../images/cart.svg';
 import accountIcon from '../../images/account.svg';
@@ -18,8 +19,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="flex items-center justify-between max-w-7xl mx-auto px-6 md:px-20 py-4 shadow-md bg-white relative">
-
+    <header className="sticky top-0 z-50 flex items-center justify-between max-w-7xl mx-auto px-6 md:px-20 py-4 shadow-md bg-white relative">
       <div className="flex items-center space-x-4">
         <div className="md:hidden">
           <button onClick={toggleMobileMenu}>
@@ -30,11 +30,15 @@ const Navbar = () => {
       </div>
 
       <nav className="hidden md:flex space-x-6 text-gray-600 text-sm font-medium">
-        <p className="hover:text-black cursor-pointer">
+        <Link to="/shop" className="hover:text-black cursor-pointer">
           Shop <span className="ml-1">&#9662;</span>
-        </p>
-        <p className="hover:text-black cursor-pointer">On Sale</p>
-        <p className="hover:text-black cursor-pointer">New Arrivals</p>
+        </Link>
+        <Link to="/top-selling" className="hover:text-black cursor-pointer">
+          On Sale
+        </Link>
+        <Link to="/new-arrivals" className="hover:text-black cursor-pointer">
+          New Arrivals
+        </Link>
         <p className="hover:text-black cursor-pointer">Brands</p>
       </nav>
 
@@ -73,9 +77,9 @@ const Navbar = () => {
 
       {showMobileMenu && (
         <div className="absolute top-full left-0 w-full bg-white flex flex-col items-start space-y-4 px-6 py-4 z-20 md:hidden">
-          <p className="text-gray-700 text-sm font-medium">Shop</p>
-          <p className="text-gray-700 text-sm font-medium">On Sale</p>
-          <p className="text-gray-700 text-sm font-medium">New Arrivals</p>
+          <Link to="/shop" className="text-gray-700 text-sm font-medium">Shop</Link>
+          <Link to="/top-selling" className="text-gray-700 text-sm font-medium">On Sale</Link>
+          <Link to="/new-arrivals" className="text-gray-700 text-sm font-medium">New Arrivals</Link>
           <p className="text-gray-700 text-sm font-medium">Brands</p>
         </div>
       )}
