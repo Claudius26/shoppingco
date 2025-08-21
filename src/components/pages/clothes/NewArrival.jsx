@@ -26,7 +26,8 @@ const NewArrival = () => {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {visibleProducts.map((product) => (
-          <div
+          <Link
+            to={`/product/${product.id}`}
             key={product.id}
             className="border rounded-lg p-4 shadow hover:shadow-lg transition flex flex-col"
           >
@@ -37,8 +38,12 @@ const NewArrival = () => {
                 className="h-full object-contain"
               />
             </div>
-            <h3 className="text-sm font-medium">{product.title.slice(0, 35)}...</h3>
-            <p className="text-gray-600 text-sm mb-2">{product.description.slice(0, 60)}...</p>
+            <h3 className="text-sm font-medium">
+              {product.title.slice(0, 35)}...
+            </h3>
+            <p className="text-gray-600 text-sm mb-2">
+              {product.description.slice(0, 60)}...
+            </p>
             <p className="text-gray-600 text-sm mb-2">{product.category}</p>
             <p className="text-green-600 font-semibold mt-1">${product.price}</p>
 
@@ -54,7 +59,7 @@ const NewArrival = () => {
             <button className="mt-4 bg-black text-white py-2 rounded hover:bg-gray-800 transition text-sm">
               Add to Cart
             </button>
-          </div>
+          </Link>
         ))}
       </div>
 

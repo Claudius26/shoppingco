@@ -1,12 +1,14 @@
 import {createBrowserRouter} from 'react-router';
 import HomePage from '../pages/homepage/HomePage';
 import MainLayout from '../../layout/MainLayout';
-import DesignLogo from '../Home/DesignLogo';
+import DesignLogoPage from '../Home/DesignLogo';
 import NewArrival from '../pages/clothes/NewArrival';
 import TopSelling from '../pages/clothes/TopSelling';
 import SignUp from '../signUpHeader/SignUp';
 import Login from '../signUpHeader/Login';
 import Shop from '../pages/clothes/Shop';
+import DesignLogo from '../Home/DesignLogo';
+import ProductDetails from '../products/ProductDetails';
 
 
 
@@ -20,8 +22,8 @@ const router = createBrowserRouter([
         element: <HomePage />,
       },
       {
-        path: 'design-logo',
-        element: <DesignLogo />,
+        path: 'design-logo-page',
+        element: <DesignLogoPage />,
       },
       {
         path: 'new-arrivals',
@@ -43,7 +45,14 @@ const router = createBrowserRouter([
         path: 'shop',
         element: <Shop />,
       },
-      
+      {
+        path: 'design-logo',
+        element: <DesignLogo />,
+      },
+      {
+        path: 'product/:id',
+        element: <ProductDetails />,
+      }
     ]
   },
  

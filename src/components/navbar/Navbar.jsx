@@ -39,7 +39,9 @@ const Navbar = () => {
         <Link to="/new-arrivals" className="hover:text-black cursor-pointer">
           New Arrivals
         </Link>
-        <p className="hover:text-black cursor-pointer">Brands</p>
+        <Link to="/design-logo-page" className="hover:text-black cursor-pointer">
+          Brands
+        </Link>
       </nav>
 
       <div className="hidden md:flex items-center space-x-4">
@@ -80,7 +82,7 @@ const Navbar = () => {
           <Link to="/shop" className="text-gray-700 text-sm font-medium">Shop</Link>
           <Link to="/top-selling" className="text-gray-700 text-sm font-medium">On Sale</Link>
           <Link to="/new-arrivals" className="text-gray-700 text-sm font-medium">New Arrivals</Link>
-          <p className="text-gray-700 text-sm font-medium">Brands</p>
+          <Link to="/design-logo-page" className="text-gray-700 text-sm font-medium">Brands</Link>
         </div>
       )}
     </header>
