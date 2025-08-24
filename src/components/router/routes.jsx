@@ -9,6 +9,8 @@ import Login from '../signUpHeader/Login';
 import Shop from '../pages/clothes/Shop';
 import DesignLogo from '../Home/DesignLogo';
 import ProductDetails from '../products/ProductDetails';
+import Cart from '../pages/Cart'
+import Checkout from '../pages/Checkout';
 
 
 
@@ -34,14 +36,6 @@ const router = createBrowserRouter([
         element: <TopSelling />,
       },
       {
-        path: 'signup',
-        element: <SignUp />,
-      },
-      {
-        path: 'login',
-        element: <Login />,
-      },
-      {
         path: 'shop',
         element: <Shop />,
       },
@@ -52,9 +46,26 @@ const router = createBrowserRouter([
       {
         path: 'product/:id',
         element: <ProductDetails />,
+      },
+      {
+        path: 'cart',
+        element: <Cart />,
+      },
+      {
+        path: 'checkout',
+        element: <Checkout />,
       }
+
     ]
   },
+    {
+        path: 'signup',
+        element: <SignUp />,
+      },
+      {
+        path: 'login',
+        element: <Login />,
+      },
  
   
 

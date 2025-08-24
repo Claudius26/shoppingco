@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router';
+import { useCart } from '../../context/CartContext'; 
 import searchIcon from '../../images/search.svg';
 import cartIcon from '../../images/cart.svg';
 import accountIcon from '../../images/account.svg';
@@ -7,6 +8,8 @@ import accountIcon from '../../images/account.svg';
 const Navbar = () => {
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showAccountMenu, setShowAccountMenu] = useState(false);
+  const { getCartCount } = useCart();
 
   const toggleMobileSearch = () => {
     setShowMobileSearch(prev => !prev);
@@ -17,6 +20,12 @@ const Navbar = () => {
     setShowMobileMenu(prev => !prev);
     setShowMobileSearch(false);
   };
+
+  const toggleAccountMenu = () => {
+    setShowAccountMenu(prev => !prev);
+  };
+
+  const cartCount = getCartCount();
 
   return (
     <header className="sticky top-0 z-50 flex items-center justify-between max-w-7xl mx-auto px-6 md:px-20 py-4 shadow-md bg-white relative">
@@ -44,7 +53,7 @@ const Navbar = () => {
         </Link>
       </nav>
 
-      <div className="hidden md:flex items-center space-x-4">
+      <div className="hidden md:flex items-center space-x-4 relative">
         <div className="flex items-center border border-gray-300 rounded-md px-3 py-1 bg-gray-100">
           <img src={searchIcon} alt="Search" className="w-4 h-4 mr-2" />
           <input
@@ -53,12 +62,39 @@ const Navbar = () => {
             className="bg-transparent focus:outline-none text-sm"
           />
         </div>
-        <img src={cartIcon} alt="Cart" className="w-5 h-5 cursor-pointer" />
-        <img src={accountIcon} alt="Account" className="w-5 h-5 cursor-pointer" />
+
+        <Link to="/cart" className="relative">
+          <img src={cartIcon} alt="Cart" className="w-5 h-5 cursor-pointer" />
+          {cartCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs px-1.5 rounded-full">
+              {cartCount}
+            </span>
+          )}
+        </Link>
+
+        <div className="relative">
+          <img
+            src={accountIcon}
+            alt="Account"
+            className="w-5 h-5 cursor-pointer"
+            onClick={toggleAccountMenu}
+          />
+          {showAccountMenu && (
+            <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-md border text-sm z-30">
+              <Link
+                to="/signup"
+                className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
+                onClick={() => setShowAccountMenu(false)}
+              >
+                Sign Up
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="md:hidden flex items-center space-x-4">
-        {showMobileSearch && (
+      <div className="md:hidden flex items-center space-x-4 relative">
+        {showMobileSearch ? (
           <div className="flex items-center border border-gray-300 rounded-md px-3 py-1 bg-gray-100 w-40">
             <input
               type="text"
@@ -67,14 +103,40 @@ const Navbar = () => {
               autoFocus
             />
           </div>
-        )}
-        {!showMobileSearch && (
+        ) : (
           <button onClick={toggleMobileSearch}>
             <img src={searchIcon} alt="Search" className="w-5 h-5 cursor-pointer" />
           </button>
         )}
-        <img src={cartIcon} alt="Cart" className="w-5 h-5 cursor-pointer" />
-        <img src={accountIcon} alt="Account" className="w-5 h-5 cursor-pointer" />
+
+        <Link to="/cart" className="relative">
+          <img src={cartIcon} alt="Cart" className="w-5 h-5 cursor-pointer" />
+          {cartCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs px-1.5 rounded-full">
+              {cartCount}
+            </span>
+          )}
+        </Link>
+
+        <div className="relative">
+          <img
+            src={accountIcon}
+            alt="Account"
+            className="w-5 h-5 cursor-pointer"
+            onClick={toggleAccountMenu}
+          />
+          {showAccountMenu && (
+            <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-md border text-sm z-30">
+              <Link
+                to="/signup"
+                className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
+                onClick={() => setShowAccountMenu(false)}
+              >
+                Sign Up
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
 
       {showMobileMenu && (
