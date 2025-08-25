@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import trendingicon from '../../images/trendingoutfit.jpg';
 import smallVector from '../../images/smallvector.svg';
 import vector from '../../images/Vector.svg';
