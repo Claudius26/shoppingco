@@ -43,7 +43,11 @@ export const CartProvider = ({children}) =>{
         )
         .filter(item => item.quantity > 0)
     );
-  }
+  };
+
+  const clearCart = () => {
+    setCartItems([]);
+  };
 
   const getCartCount = () =>
     cartItems.reduce((total, item) => total + item.quantity, 0);
@@ -57,6 +61,7 @@ export const CartProvider = ({children}) =>{
         increaseQuantity,
         decreaseQuantity,
         getCartCount,
+        clearCart
       }}
     >
       {children}
