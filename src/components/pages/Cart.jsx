@@ -18,7 +18,6 @@ const Cart = () => {
     (total, item) => total + item.price * item.quantity,
     0
   );
-
   const discount = totalPrice * 0.2;
   const deliveryFee = 15;
   const finalTotal = totalPrice - discount + deliveryFee;
@@ -27,7 +26,10 @@ const Cart = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-sky-400 via-blue-300 to-blue-500">
         <h2 className="text-3xl font-bold mb-4 text-blue-800">Your cart is empty.</h2>
-        <Link to="/shop" className="bg-white text-blue-600 font-semibold px-6 py-3 rounded-full shadow hover:bg-blue-50 transition">
+        <Link
+          to="/shop"
+          className="bg-white text-blue-600 font-semibold px-6 py-3 rounded-full shadow hover:bg-blue-50 transition"
+        >
           Continue Shopping
         </Link>
       </div>
@@ -37,26 +39,31 @@ const Cart = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-400 via-blue-300 to-blue-500 px-4 py-10">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-4xl font-extrabold mb-10 text-blue-800 text-center tracking-tight drop-shadow-lg">Your Cart</h2>
+        <h2 className="text-4xl font-extrabold mb-10 text-blue-800 text-center tracking-tight drop-shadow-lg">
+          Your Cart
+        </h2>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 space-y-6">
-            {cartItems.map(item => (
+            {cartItems.map((item) => (
               <div
-                key={item.id + item.color + item.size}
-                className="flex flex-wrap items-center justify-between border border-blue-200 bg-white/80 backdrop-blur rounded-2xl shadow-lg p-6 hover:scale-[1.01] transition"
+                key={`${item.id}-${item.color}-${item.size}`}
+                className="bg-white/80 backdrop-blur rounded-2xl shadow-lg p-6 hover:scale-[1.01] transition"
               >
-                <div className="flex flex-wrap items-center space-x-6 w-full">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-4">
+                  {/* Product Image */}
                   <img
                     src={item.image}
                     alt={item.title}
-                    className="w-24 h-24 object-contain rounded-xl border border-blue-100 bg-white"
+                    className="w-24 h-24 object-contain rounded-xl border border-blue-100 bg-white mx-auto sm:mx-0"
                   />
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-lg text-blue-900 break-words whitespace-normal">
+
+                  {/* Product Info */}
+                  <div className="flex-1 min-w-0 text-center sm:text-left">
+                    <h3 className="font-semibold text-base sm:text-lg text-blue-900 break-words">
                       {item.title}
                     </h3>
                     <p className="text-sm text-blue-600">Size: {item.size}</p>
-                    <p className="text-sm text-blue-600 flex items-center gap-1">
+                    <p className="text-sm text-blue-600 flex items-center justify-center sm:justify-start gap-1">
                       Color:
                       <span
                         className="inline-block w-5 h-5 rounded-full border border-blue-300"
@@ -65,12 +72,14 @@ const Cart = () => {
                     </p>
                     <p className="mt-2 font-bold text-blue-700 text-lg">${item.price}</p>
                   </div>
-                  <div className="flex items-center space-x-2">
+
+                  {/* Quantity Controls */}
+                  <div className="flex items-center justify-center sm:justify-end space-x-2">
                     <button
                       onClick={() => decreaseQuantity(item.id)}
                       className="px-3 py-2 bg-blue-100 text-blue-700 rounded-full font-bold hover:bg-blue-200 transition"
                     >
-                      -
+                      –
                     </button>
                     <span className="font-semibold text-blue-900">{item.quantity}</span>
                     <button
@@ -80,17 +89,22 @@ const Cart = () => {
                       +
                     </button>
                   </div>
-                  <button
-                    onClick={() => removeFromCart(item.id)}
-                    className="ml-6 text-red-500 hover:scale-110 transition"
-                  >
-                    <img src={removeIcon} alt="Remove" className="w-5 h-5" />
-                  </button>
+
+                  {/* Remove Button */}
+                  <div className="flex justify-center sm:justify-end mt-2 sm:mt-0">
+                    <button
+                      onClick={() => removeFromCart(item.id)}
+                      className="text-red-500 hover:scale-110 transition"
+                    >
+                      <img src={removeIcon} alt="Remove" className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
 
+          {/* Order Summary */}
           <div className="border border-blue-200 rounded-2xl p-8 bg-white/90 backdrop-blur shadow-xl space-y-6 h-fit sticky top-10">
             <h3 className="text-2xl font-bold mb-4 text-blue-800">Order Summary</h3>
             <div className="flex justify-between text-base">
