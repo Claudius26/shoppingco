@@ -17,7 +17,10 @@ const HomeView = () => {
             to bring out your individuality and cater to your sense of style.
           </p>
         </div>
-        <Link to="/shop" className="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800 transition w-full md:w-auto text-center">
+        <Link
+          to="/shop"
+          className="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800 transition w-full md:w-auto inline-block text-center"
+        >
           Shop Now
         </Link>
         <div className="pt-6 flex flex-col items-center md:flex-row md:justify-start md:space-x-6 md:items-start">
