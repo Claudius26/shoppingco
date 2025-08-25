@@ -29,18 +29,24 @@ const ProductDetails = () => {
       <span className="ml-4 text-lg text-sky-700 font-semibold">Loading...</span>
     </div>
   );
+
   if (error) return (
     <div className="flex items-center justify-center min-h-[300px] text-red-600 font-semibold">
       Error: {error.message}
     </div>
   );
 
+  // ✅ Check if products exist before finding product
+  if (!products || products.length === 0) return null;
+
   const product = products.find((p) => p.id === parseInt(id));
-  if (!product) return (
-    <div className="flex items-center justify-center min-h-[300px] text-red-600 font-semibold">
-      Product not found.
-    </div>
-  );
+  if (!product) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px] text-red-600 font-semibold">
+        Product not found.
+      </div>
+    );
+  }
 
   const colors = ['#000000', '#FF0000', '#0000FF', '#008000'];
   const sizes = ['Small', 'Medium', 'Large'];
@@ -129,6 +135,13 @@ const ProductDetails = () => {
                 />
               ))}
             </div>
+            {/* ✅ Show selected color */}
+            {selectedColor && (
+              <p className="mt-2 text-sm text-gray-600">
+                Selected Color:
+                <span className="inline-block w-4 h-4 rounded-full ml-1 align-middle border" style={{ backgroundColor: selectedColor }} />
+              </p>
+            )}
           </div>
 
           <div className="mb-4">
@@ -144,6 +157,10 @@ const ProductDetails = () => {
                 </button>
               ))}
             </div>
+            {/* ✅ Show selected size */}
+            {selectedSize && (
+              <p className="mt-2 text-sm text-gray-600">Selected Size: {selectedSize}</p>
+            )}
           </div>
 
           <div className="flex items-center gap-4 mt-4 mb-4">
@@ -168,84 +185,64 @@ const ProductDetails = () => {
         </div>
       </div>
 
+      {/* Tabs */}
       <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div
           onClick={() => setActiveTab('details')}
-          className={`border p-4 cursor-pointer rounded-xl shadow transition ${activeTab === 'details' ? 'border-blue-600 bg-blue-50' : 'hover:shadow-lg'}`}
+          className={`border p-4 cursor-pointer rounded-xl shadow transition ${activeTab === 'details' ? 'border-blue-600 bg-blue-50' : 'bg-white hover:bg-gray-50'}`}
         >
-          <h3 className="text-lg font-bold mb-2 text-blue-700">Product Details</h3>
-          <p className="text-sm text-gray-600 line-clamp-3">{product.description}</p>
+          <h3 className="font-bold text-blue-700 mb-2">Product Details</h3>
+          <p className="text-sm text-gray-600">
+            {product.description}
+          </p>
         </div>
+
+        <div
+          onClick={() => setActiveTab('specs')}
+          className={`border p-4 cursor-pointer rounded-xl shadow transition ${activeTab === 'specs' ? 'border-blue-600 bg-blue-50' : 'bg-white hover:bg-gray-50'}`}
+        >
+          <h3 className="font-bold text-blue-700 mb-2">Specifications</h3>
+          <ul className="text-sm text-gray-600 space-y-1">
+            <li>Brand: {product.category}</li>
+            <li>Weight: 1.2kg</li>
+            <li>Material: Premium synthetic</li>
+          </ul>
+        </div>
+
         <div
           onClick={() => setActiveTab('reviews')}
-          className={`border p-4 cursor-pointer rounded-xl shadow transition ${activeTab === 'reviews' ? 'border-blue-600 bg-blue-50' : 'hover:shadow-lg'}`}
+          className={`border p-4 cursor-pointer rounded-xl shadow transition ${activeTab === 'reviews' ? 'border-blue-600 bg-blue-50' : 'bg-white hover:bg-gray-50'}`}
         >
-          <h3 className="text-lg font-bold mb-2 text-blue-700">Reviews</h3>
-          <p className="text-sm text-gray-600">View and write customer reviews</p>
-        </div>
-        <div
-          onClick={() => setActiveTab('faq')}
-          className={`border p-4 cursor-pointer rounded-xl shadow transition ${activeTab === 'faq' ? 'border-blue-600 bg-blue-50' : 'hover:shadow-lg'}`}
-        >
-          <h3 className="text-lg font-bold mb-2 text-blue-700">FAQ</h3>
-          <p className="text-sm text-gray-600">See common customer questions</p>
+          <h3 className="font-bold text-blue-700 mb-2">Customer Reviews</h3>
+          <p className="text-sm text-gray-600 mb-2">"Great product!" — John</p>
+          <textarea
+            value={review}
+            onChange={(e) => setReview(e.target.value)}
+            placeholder="Leave your review"
+            className="w-full mt-2 p-2 border border-blue-200 rounded-xl resize-none"
+          />
+          <button
+            onClick={handleReviewSubmit}
+            className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-blue-700 transition"
+          >
+            Submit Review
+          </button>
         </div>
       </div>
 
-      {activeTab && (
-        <div className="mt-8 border-t pt-6">
-          {activeTab === 'details' && (
-            <div>
-              <h3 className="text-xl font-bold mb-2 text-blue-700">Product Details</h3>
-              <p>{product.description}</p>
-            </div>
-          )}
-          {activeTab === 'reviews' && (
-            <div>
-              <h3 className="text-xl font-bold mb-2 text-blue-700">Reviews</h3>
-              <textarea
-                className="w-full border rounded-xl p-3 mb-3 focus:ring-2 focus:ring-blue-400 transition"
-                rows="4"
-                placeholder="Write your review..."
-                value={review}
-                onChange={(e) => setReview(e.target.value)}
-              />
-              <button
-                onClick={handleReviewSubmit}
-                className="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-6 py-2 rounded-xl font-bold hover:scale-105 hover:from-blue-700 hover:to-sky-500 transition-transform shadow"
-              >
-                Submit Review
-              </button>
-            </div>
-          )}
-          {activeTab === 'faq' && (
-            <div>
-              <h3 className="text-xl font-bold mb-2 text-blue-700">FAQ</h3>
-              <p className="mb-2">Q: Is this product available in other colors?</p>
-              <p className="text-gray-600 mb-4">A: Yes! Select from the color options above.</p>
-              <p className="mb-2">Q: What’s the return policy?</p>
-              <p className="text-gray-600">A: 30-day return window, no questions asked.</p>
-            </div>
-          )}
-        </div>
-      )}
-
+      {/* Recommended */}
       <div className="mt-16">
-        <h2 className="text-2xl font-bold mb-6 text-blue-700">You Might Also Like</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {recommended.map((prod) => (
+        <h2 className="text-2xl font-bold text-blue-900 mb-6">You may also like</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {recommended.map((rec) => (
             <div
-              key={prod.id}
-              className="border border-blue-100 rounded-xl p-4 shadow hover:shadow-lg transition flex flex-col cursor-pointer bg-white"
-              onClick={() => navigate(`/product/${prod.id}`)}
+              key={rec.id}
+              className="bg-white p-4 rounded-xl shadow hover:scale-105 transition cursor-pointer"
+              onClick={() => navigate(`/product/${rec.id}`)}
             >
-              <div className="bg-gradient-to-br from-sky-100 via-blue-50 to-white p-4 rounded-md h-40 flex justify-center items-center mb-2">
-                <img src={prod.image} alt={prod.title} className="h-full object-contain" />
-              </div>
-              <h3 className="text-sm font-medium mb-1 text-blue-900">
-                {prod.title.length > 40 ? prod.title.slice(0, 40) + '...' : prod.title}
-              </h3>
-              <p className="text-green-600 font-semibold">${prod.price}</p>
+              <img src={rec.image} alt={rec.title} className="h-40 mx-auto object-contain" />
+              <h3 className="mt-2 text-sm font-semibold text-gray-800 line-clamp-2">{rec.title}</h3>
+              <p className="text-green-600 font-bold mt-1">${rec.price}</p>
             </div>
           ))}
         </div>

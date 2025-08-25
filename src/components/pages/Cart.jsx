@@ -43,16 +43,18 @@ const Cart = () => {
             {cartItems.map(item => (
               <div
                 key={item.id + item.color + item.size}
-                className="flex items-center justify-between border border-blue-200 bg-white/80 backdrop-blur rounded-2xl shadow-lg p-6 hover:scale-[1.01] transition"
+                className="flex flex-wrap items-center justify-between border border-blue-200 bg-white/80 backdrop-blur rounded-2xl shadow-lg p-6 hover:scale-[1.01] transition"
               >
-                <div className="flex items-center space-x-6 w-full">
+                <div className="flex flex-wrap items-center space-x-6 w-full">
                   <img
                     src={item.image}
                     alt={item.title}
                     className="w-24 h-24 object-contain rounded-xl border border-blue-100 bg-white"
                   />
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-lg text-blue-900 break-words">{item.title}</h3>
+                    <h3 className="font-semibold text-lg text-blue-900 break-words whitespace-normal">
+                      {item.title}
+                    </h3>
                     <p className="text-sm text-blue-600">Size: {item.size}</p>
                     <p className="text-sm text-blue-600 flex items-center gap-1">
                       Color:
