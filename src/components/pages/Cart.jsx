@@ -18,6 +18,7 @@ const Cart = () => {
     (total, item) => total + item.price * item.quantity,
     0
   );
+
   const discount = totalPrice * 0.2;
   const deliveryFee = 15;
   const finalTotal = totalPrice - discount + deliveryFee;
@@ -49,21 +50,21 @@ const Cart = () => {
                 key={`${item.id}-${item.color}-${item.size}`}
                 className="bg-white/80 backdrop-blur rounded-2xl shadow-lg p-6 hover:scale-[1.01] transition"
               >
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-4">
+                <div className="flex items-center justify-between w-full gap-4 flex-wrap sm:flex-nowrap">
                   {/* Product Image */}
                   <img
                     src={item.image}
                     alt={item.title}
-                    className="w-24 h-24 object-contain rounded-xl border border-blue-100 bg-white mx-auto sm:mx-0"
+                    className="w-16 h-16 sm:w-24 sm:h-24 object-contain rounded-xl border border-blue-100 bg-white"
                   />
 
                   {/* Product Info */}
-                  <div className="flex-1 min-w-0 text-center sm:text-left">
+                  <div className="flex-1 min-w-0 text-left">
                     <h3 className="font-semibold text-base sm:text-lg text-blue-900 break-words">
                       {item.title}
                     </h3>
                     <p className="text-sm text-blue-600">Size: {item.size}</p>
-                    <p className="text-sm text-blue-600 flex items-center justify-center sm:justify-start gap-1">
+                    <p className="text-sm text-blue-600 flex items-center gap-1">
                       Color:
                       <span
                         className="inline-block w-5 h-5 rounded-full border border-blue-300"
@@ -74,7 +75,7 @@ const Cart = () => {
                   </div>
 
                   {/* Quantity Controls */}
-                  <div className="flex items-center justify-center sm:justify-end space-x-2">
+                  <div className="flex items-center space-x-2">
                     <button
                       onClick={() => decreaseQuantity(item.id)}
                       className="px-3 py-2 bg-blue-100 text-blue-700 rounded-full font-bold hover:bg-blue-200 transition"
@@ -91,20 +92,17 @@ const Cart = () => {
                   </div>
 
                   {/* Remove Button */}
-                  <div className="flex justify-center sm:justify-end mt-2 sm:mt-0">
-                    <button
-                      onClick={() => removeFromCart(item.id)}
-                      className="text-red-500 hover:scale-110 transition"
-                    >
-                      <img src={removeIcon} alt="Remove" className="w-5 h-5" />
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => removeFromCart(item.id)}
+                    className="text-red-500 hover:scale-110 transition"
+                  >
+                    <img src={removeIcon} alt="Remove" className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Order Summary */}
           <div className="border border-blue-200 rounded-2xl p-8 bg-white/90 backdrop-blur shadow-xl space-y-6 h-fit sticky top-10">
             <h3 className="text-2xl font-bold mb-4 text-blue-800">Order Summary</h3>
             <div className="flex justify-between text-base">
