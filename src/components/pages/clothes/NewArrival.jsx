@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useGetAllProductsQuery } from '../../products/productApiSlice';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { useCart } from '../../../context/CartContext'; 
 
 const NewArrival = () => {
@@ -8,6 +8,7 @@ const NewArrival = () => {
   const { addToCart } = useCart();
   const [showAll, setShowAll] = useState(false);
   const sectionRef = useRef(null);
+  const navigate = useNavigate();
 
   if (isLoading) return (
     <div className="flex items-center justify-center min-h-[300px]">
@@ -63,7 +64,7 @@ const NewArrival = () => {
               </div>
             </Link>
             <button
-              onClick={() => addToCart(product)}
+              onClick={() => navigate(`/product/${product.id}`)}
               className="mt-4 bg-gradient-to-r from-blue-600 to-sky-400 text-white py-2 rounded-xl hover:scale-105 hover:from-blue-700 hover:to-sky-500 transition-transform font-semibold shadow"
             >
               Add to Cart

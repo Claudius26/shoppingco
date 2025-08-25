@@ -1,11 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { useGetAllProductsQuery } from '../../products/productApiSlice';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { useCart } from '../../../context/CartContext'; 
 
 const TopSelling = () => {
   const { data: products, isLoading, error } = useGetAllProductsQuery();
-  const { addToCart } = useCart(); 
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
+
   const [showAll, setShowAll] = useState(false);
   const sectionRef = useRef(null);
 
@@ -61,9 +63,9 @@ const TopSelling = () => {
                 <span className="text-gray-600 ml-2 text-sm">{product.rating.rate}</span>
               </div>
             </Link>
-            <button
-              onClick={() => addToCart(product)}
-              className="mt-4 bg-gradient-to-r from-yellow-500 to-yellow-400 text-white py-2 rounded-xl hover:scale-105 hover:from-yellow-600 hover:to-yellow-500 transition-transform font-semibold shadow"
+           <button
+              onClick={() => navigate(`/product/${product.id}`)}
+              className="mt-4 bg-gradient-to-r from-blue-600 to-sky-400 text-white py-2 rounded-xl hover:scale-105 hover:from-blue-700 hover:to-sky-500 transition-transform font-semibold shadow"
             >
               Add to Cart
             </button>
