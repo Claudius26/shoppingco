@@ -23,6 +23,19 @@ const Cart = () => {
   const deliveryFee = 15;
   const finalTotal = totalPrice - discount + deliveryFee;
 
+  const isLoggedIn = () => {
+    const token = localStorage.getItem('token');
+    return !!token;
+  };
+
+  const handleCheckout = () => {
+    if (isLoggedIn()) {
+      navigate('/checkout');
+    } else {
+      navigate('/login');
+    }
+  };
+
   if (cartItems.length === 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-sky-400 via-blue-300 to-blue-500">
@@ -51,14 +64,11 @@ const Cart = () => {
                 className="bg-white/80 backdrop-blur rounded-2xl shadow-lg p-6 hover:scale-[1.01] transition"
               >
                 <div className="flex items-center justify-between w-full gap-4 flex-wrap sm:flex-nowrap">
-                  {/* Product Image */}
                   <img
                     src={item.image}
                     alt={item.title}
                     className="w-16 h-16 sm:w-24 sm:h-24 object-contain rounded-xl border border-blue-100 bg-white"
                   />
-
-                  {/* Product Info */}
                   <div className="flex-1 min-w-0 text-left">
                     <h3 className="font-semibold text-base sm:text-lg text-blue-900 break-words">
                       {item.title}
@@ -73,8 +83,6 @@ const Cart = () => {
                     </p>
                     <p className="mt-2 font-bold text-blue-700 text-lg">${item.price}</p>
                   </div>
-
-                  {/* Quantity Controls */}
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => decreaseQuantity(item.id)}
@@ -90,8 +98,6 @@ const Cart = () => {
                       +
                     </button>
                   </div>
-
-                  {/* Remove Button */}
                   <button
                     onClick={() => removeFromCart(item.id)}
                     className="text-red-500 hover:scale-110 transition"
@@ -102,7 +108,6 @@ const Cart = () => {
               </div>
             ))}
           </div>
-
           <div className="border border-blue-200 rounded-2xl p-8 bg-white/90 backdrop-blur shadow-xl space-y-6 h-fit sticky top-10">
             <h3 className="text-2xl font-bold mb-4 text-blue-800">Order Summary</h3>
             <div className="flex justify-between text-base">
@@ -121,7 +126,6 @@ const Cart = () => {
               <span>Total</span>
               <span>${finalTotal.toFixed(2)}</span>
             </div>
-
             <div className="flex items-center space-x-2 mt-4">
               <input
                 type="text"
@@ -132,14 +136,12 @@ const Cart = () => {
                 Apply
               </button>
             </div>
-
             <button
-              onClick={() => navigate('/checkout')}
+              onClick={handleCheckout}
               className="w-full mt-4 bg-gradient-to-r from-blue-600 to-sky-500 text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:scale-105 transition-transform duration-200"
             >
               Go to Checkout →
             </button>
-
             <button
               onClick={clearCart}
               className="w-full mt-2 text-base text-blue-500 hover:underline"
