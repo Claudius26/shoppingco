@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router';
-import { useCart } from '../../context/CartContext'; 
+import { Link, useNavigate } from 'react-router';
+import { useCart } from '../../context/CartContext';
 import searchIcon from '../../images/search.svg';
 import cartIcon from '../../images/cart.svg';
 import accountIcon from '../../images/account.svg';
@@ -10,6 +10,9 @@ const Navbar = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const { getCartCount } = useCart();
+  const navigate = useNavigate();
+
+  const user = JSON.parse(localStorage.getItem('user'));
 
   const toggleMobileSearch = () => {
     setShowMobileSearch(prev => !prev);
@@ -23,6 +26,13 @@ const Navbar = () => {
 
   const toggleAccountMenu = () => {
     setShowAccountMenu(prev => !prev);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setShowAccountMenu(false);
+    navigate('/');
   };
 
   const cartCount = getCartCount();
@@ -39,18 +49,10 @@ const Navbar = () => {
       </div>
 
       <nav className="hidden md:flex space-x-6 text-gray-600 text-sm font-medium">
-        <Link to="/shop" className="hover:text-black cursor-pointer">
-          Shop <span className="ml-1">&#9662;</span>
-        </Link>
-        <Link to="/top-selling" className="hover:text-black cursor-pointer">
-          On Sale
-        </Link>
-        <Link to="/new-arrivals" className="hover:text-black cursor-pointer">
-          New Arrivals
-        </Link>
-        <Link to="/design-logo-page" className="hover:text-black cursor-pointer">
-          Brands
-        </Link>
+        <Link to="/shop" className="hover:text-black cursor-pointer">Shop <span className="ml-1">&#9662;</span></Link>
+        <Link to="/top-selling" className="hover:text-black cursor-pointer">On Sale</Link>
+        <Link to="/new-arrivals" className="hover:text-black cursor-pointer">New Arrivals</Link>
+        <Link to="/design-logo-page" className="hover:text-black cursor-pointer">Brands</Link>
       </nav>
 
       <div className="hidden md:flex items-center space-x-4 relative">
@@ -66,9 +68,7 @@ const Navbar = () => {
         <Link to="/cart" className="relative">
           <img src={cartIcon} alt="Cart" className="w-5 h-5 cursor-pointer" />
           {cartCount > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs px-1.5 rounded-full">
-              {cartCount}
-            </span>
+            <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs px-1.5 rounded-full">{cartCount}</span>
           )}
         </Link>
 
@@ -80,14 +80,50 @@ const Navbar = () => {
             onClick={toggleAccountMenu}
           />
           {showAccountMenu && (
-            <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-md border text-sm z-30">
-              <Link
-                to="/signup"
-                className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
-                onClick={() => setShowAccountMenu(false)}
-              >
-                Sign Up
-              </Link>
+            <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md border text-sm z-30">
+              {!user && (
+                <>
+                  <Link
+                    to="/signup"
+                    className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
+                    onClick={() => setShowAccountMenu(false)}
+                  >
+                    Sign Up
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
+                    onClick={() => setShowAccountMenu(false)}
+                  >
+                    Log In
+                  </Link>
+                </>
+              )}
+
+              {user && (
+                <>
+                  <Link
+                    to="/profile"
+                    className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
+                    onClick={() => setShowAccountMenu(false)}
+                  >
+                    My Profile
+                  </Link>
+                  <Link
+                    to="/settings"
+                    className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
+                    onClick={() => setShowAccountMenu(false)}
+                  >
+                    Settings
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-800"
+                  >
+                    Logout
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -112,9 +148,7 @@ const Navbar = () => {
         <Link to="/cart" className="relative">
           <img src={cartIcon} alt="Cart" className="w-5 h-5 cursor-pointer" />
           {cartCount > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs px-1.5 rounded-full">
-              {cartCount}
-            </span>
+            <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs px-1.5 rounded-full">{cartCount}</span>
           )}
         </Link>
 
@@ -126,14 +160,50 @@ const Navbar = () => {
             onClick={toggleAccountMenu}
           />
           {showAccountMenu && (
-            <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-md border text-sm z-30">
-              <Link
-                to="/signup"
-                className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
-                onClick={() => setShowAccountMenu(false)}
-              >
-                Sign Up
-              </Link>
+            <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md border text-sm z-30">
+              {!user && (
+                <>
+                  <Link
+                    to="/signup"
+                    className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
+                    onClick={() => setShowAccountMenu(false)}
+                  >
+                    Sign Up
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
+                    onClick={() => setShowAccountMenu(false)}
+                  >
+                    Log In
+                  </Link>
+                </>
+              )}
+
+              {user && (
+                <>
+                  <Link
+                    to="/profile"
+                    className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
+                    onClick={() => setShowAccountMenu(false)}
+                  >
+                    My Profile
+                  </Link>
+                  <Link
+                    to="/settings"
+                    className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
+                    onClick={() => setShowAccountMenu(false)}
+                  >
+                    Settings
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-800"
+                  >
+                    Logout
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>

@@ -3,15 +3,47 @@ import { Link, useNavigate } from 'react-router';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const togglePassword = () => {
-    setShowPassword((prev) => !prev);
+  const togglePassword = () => setShowPassword((prev) => !prev);
+
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate('/');
+    setErrorMessage('');
+    setLoading(true);
+
+    try {
+      const res = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      navigate('/shop');
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -27,30 +59,24 @@ const Login = () => {
         </div>
         <h2 className="text-3xl font-extrabold text-center mb-8 text-blue-800 drop-shadow-lg">Welcome Back</h2>
 
+        {errorMessage && (
+          <div className="text-center text-red-600 font-semibold text-sm mb-4">
+            {errorMessage}
+          </div>
+        )}
+
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
             <label htmlFor="email" className="block text-sm font-semibold text-blue-700 mb-1">
               Email Address
             </label>
             <div className="flex items-center border border-blue-200 rounded-xl px-4 py-3 mt-1 bg-white/90 shadow-sm">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-5 h-5 text-blue-400 mr-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 12l-4-4m0 0l-4 4m4-4v8"
-                />
-              </svg>
               <input
                 type="email"
                 id="email"
                 name="email"
+                value={formData.email}
+                onChange={handleChange}
                 required
                 placeholder="you@example.com"
                 className="w-full outline-none text-sm bg-transparent"
@@ -67,6 +93,8 @@ const Login = () => {
                 type={showPassword ? 'text' : 'password'}
                 id="password"
                 name="password"
+                value={formData.password}
+                onChange={handleChange}
                 required
                 placeholder="••••••••"
                 className="w-full outline-none text-sm bg-transparent"
@@ -81,21 +109,12 @@ const Login = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center">
-              <input type="checkbox" className="mr-2 accent-blue-500" />
-              Remember me
-            </label>
-            <Link to="/forgot-password" className="text-blue-600 font-semibold hover:underline">
-              Forgot password?
-            </Link>
-          </div>
-
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-600 to-sky-500 text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:scale-105 hover:from-blue-700 hover:to-sky-600 transition-transform duration-200"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-blue-600 to-sky-500 text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:scale-105 transition-transform duration-200 disabled:opacity-50"
           >
-            Log In
+            {loading ? 'Logging in...' : 'Log In'}
           </button>
         </form>
 

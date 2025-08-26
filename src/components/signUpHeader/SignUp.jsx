@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Link } from 'react-router';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router';
 import { motion } from 'framer-motion';
 
 const inputVariants = {
@@ -12,9 +12,96 @@ const inputVariants = {
 };
 
 const SignUp = () => {
-  useEffect(() => {
-    localStorage.setItem('hasSignedUp', 'true');
-  }, []);
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    firstname: '',
+    lastname: '',
+    dob: '',
+    nationality: '',
+    residence: '',
+    phone: '',
+    email: '',
+    password: ''
+  });
+
+  const [errors, setErrors] = useState({});
+  const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const validate = () => {
+    const newErrors = {};
+
+    if (!formData.firstname.trim()) newErrors.firstname = 'First name is required';
+    if (!formData.lastname.trim()) newErrors.lastname = 'Last name is required';
+
+    if (!formData.dob) newErrors.dob = 'Date of birth is required';
+
+    if (!formData.nationality.trim()) newErrors.nationality = 'Nationality is required';
+    if (!formData.residence.trim()) newErrors.residence = 'Residence is required';
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!/^\+?[0-9]{7,15}$/.test(formData.phone)) {
+      newErrors.phone = 'Invalid phone number';
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Invalid email address';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleChange = (e) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setErrors(prev => ({ ...prev, [e.target.name]: null }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validate()) return;
+
+    setLoading(true);
+    setMessage(null);
+
+    try {
+      const res = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
+      setMessage('Registration successful! Redirecting...');
+
+      
+      if (data.token) localStorage.setItem('token', data.token);
+
+      
+      setTimeout(() => navigate('/login'), 1500);
+
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-400 via-blue-300 to-blue-500 flex items-center justify-center px-4 relative overflow-hidden">
@@ -39,56 +126,28 @@ const SignUp = () => {
             Home
           </Link>
         </div>
-        <form className="space-y-6">
+
+        
+        {message && (
+          <div
+            className={`mb-6 text-center text-sm font-semibold ${
+              message.toLowerCase().includes('success') ? 'text-green-600' : 'text-red-600'
+            }`}
+          >
+            {message}
+          </div>
+        )}
+
+        <form className="space-y-6" onSubmit={handleSubmit} noValidate>
           {[
-            {
-              label: 'First Name',
-              type: 'text',
-              id: 'firstname',
-              name: 'firstname'
-            },
-            {
-              label: 'Last Name',
-              type: 'text',
-              id: 'lastname',
-              name: 'lastname'
-            },
-            {
-              label: 'Date of Birth',
-              type: 'date',
-              id: 'dob',
-              name: 'dob'
-            },
-            {
-              label: 'Nationality',
-              type: 'text',
-              id: 'nationality',
-              name: 'nationality'
-            },
-            {
-              label: 'Home of Residence',
-              type: 'text',
-              id: 'residence',
-              name: 'residence'
-            },
-            {
-              label: 'Phone Number',
-              type: 'tel',
-              id: 'phone',
-              name: 'phone'
-            },
-            {
-              label: 'Email Address',
-              type: 'email',
-              id: 'email',
-              name: 'email'
-            },
-            {
-              label: 'Password',
-              type: 'password',
-              id: 'password',
-              name: 'password'
-            }
+            { label: 'First Name', type: 'text', id: 'firstname', name: 'firstname' },
+            { label: 'Last Name', type: 'text', id: 'lastname', name: 'lastname' },
+            { label: 'Date of Birth', type: 'date', id: 'dob', name: 'dob' },
+            { label: 'Nationality', type: 'text', id: 'nationality', name: 'nationality' },
+            { label: 'Home of Residence', type: 'text', id: 'residence', name: 'residence' },
+            { label: 'Phone Number', type: 'tel', id: 'phone', name: 'phone' },
+            { label: 'Email Address', type: 'email', id: 'email', name: 'email' },
+            { label: 'Password', type: 'password', id: 'password', name: 'password' }
           ].map((input, i) => (
             <motion.div
               key={input.id}
@@ -105,22 +164,32 @@ const SignUp = () => {
                 type={input.type}
                 id={input.id}
                 name={input.name}
+                value={formData[input.name]}
+                onChange={handleChange}
                 required
-                className="mt-1 block w-full border border-blue-200 rounded-xl shadow-sm px-4 py-3 bg-white/90 focus:ring-2 focus:ring-sky-400 focus:border-sky-400 transition placeholder:text-blue-300"
+                className={`mt-1 block w-full border rounded-xl shadow-sm px-4 py-3 bg-white/90 focus:ring-2 focus:ring-sky-400 focus:border-sky-400 transition placeholder:text-blue-300
+                  ${errors[input.name] ? 'border-red-500' : 'border-blue-200'}
+                `}
                 placeholder={input.label}
               />
+              {errors[input.name] && (
+                <p className="text-red-600 text-xs mt-1">{errors[input.name]}</p>
+              )}
             </motion.div>
           ))}
+
           <motion.button
             type="submit"
+            disabled={loading}
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.5, duration: 0.6, type: 'spring' }}
-            className="w-full bg-gradient-to-r from-sky-500 to-blue-500 text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:scale-105 hover:from-sky-600 hover:to-blue-600 transition-transform duration-200"
+            className="w-full bg-gradient-to-r from-sky-500 to-blue-500 text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:scale-105 hover:from-sky-600 hover:to-blue-600 transition-transform duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Sign Up
+            {loading ? 'Signing Up...' : 'Sign Up'}
           </motion.button>
         </form>
+
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
