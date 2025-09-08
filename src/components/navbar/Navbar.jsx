@@ -57,14 +57,17 @@ const Navbar = () => {
         <Link to="/design-logo-page" className="hover:text-black cursor-pointer">Brands</Link>
       </nav>
 
-      <div className="hidden md:flex items-center space-x-4 relative">
-        <div className="flex items-center border border-gray-300 rounded-md px-3 py-1 bg-gray-100">
+      <div className="flex items-center space-x-4 relative">
+        <div className="hidden md:flex items-center border border-gray-300 rounded-md px-3 py-1 bg-gray-100">
           <img src={searchIcon} alt="Search" className="w-4 h-4 mr-2" />
           <input
             type="text"
             placeholder="Search for products"
             className="bg-transparent focus:outline-none text-sm"
           />
+        </div>
+        <div className="md:hidden">
+          <img src={searchIcon} alt="Search" className="w-5 h-5 cursor-pointer" onClick={toggleMobileSearch} />
         </div>
 
         <Link to="/cart" className="relative">
