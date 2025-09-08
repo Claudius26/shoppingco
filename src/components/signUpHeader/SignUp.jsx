@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router';
 import { motion } from 'framer-motion';
 
 const inputVariants = {
@@ -13,6 +13,7 @@ const inputVariants = {
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [formData, setFormData] = useState({
     firstname: '',
@@ -22,8 +23,17 @@ const SignUp = () => {
     residence: '',
     phone: '',
     email: '',
-    password: ''
+    password: '',
+    role: 'buyer'
   });
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const role = params.get('role');
+    if (role === 'seller' || role === 'buyer') {
+      setFormData(prev => ({ ...prev, role }));
+    }
+  }, [location.search]);
 
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState(null);
@@ -31,33 +41,26 @@ const SignUp = () => {
 
   const validate = () => {
     const newErrors = {};
-
     if (!formData.firstname.trim()) newErrors.firstname = 'First name is required';
     if (!formData.lastname.trim()) newErrors.lastname = 'Last name is required';
-
     if (!formData.dob) newErrors.dob = 'Date of birth is required';
-
     if (!formData.nationality.trim()) newErrors.nationality = 'Nationality is required';
     if (!formData.residence.trim()) newErrors.residence = 'Residence is required';
-
     if (!formData.phone.trim()) {
       newErrors.phone = 'Phone number is required';
     } else if (!/^\+?[0-9]{7,15}$/.test(formData.phone)) {
       newErrors.phone = 'Invalid phone number';
     }
-
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Invalid email address';
     }
-
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -69,7 +72,6 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validate()) return;
 
     setLoading(true);
@@ -89,13 +91,8 @@ const SignUp = () => {
       }
 
       setMessage('Registration successful! Redirecting...');
-
-      
       if (data.token) localStorage.setItem('token', data.token);
-
-      
       setTimeout(() => navigate('/login'), 1500);
-
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -120,14 +117,12 @@ const SignUp = () => {
             transition={{ duration: 0.7, type: 'spring' }}
             className="text-4xl font-extrabold text-center flex-1 text-blue-700 drop-shadow-lg"
           >
-            Create Account
+            Register as {formData.role.charAt(0).toUpperCase() + formData.role.slice(1)}
           </motion.h2>
           <Link to="/" className="text-sky-600 hover:underline text-base font-semibold ml-4 px-4 py-2 rounded-full bg-white/60 shadow hover:bg-white/80 transition">
             Home
           </Link>
         </div>
-
-        
         {message && (
           <div
             className={`mb-6 text-center text-sm font-semibold ${
@@ -137,7 +132,6 @@ const SignUp = () => {
             {message}
           </div>
         )}
-
         <form className="space-y-6" onSubmit={handleSubmit} noValidate>
           {[
             { label: 'First Name', type: 'text', id: 'firstname', name: 'firstname' },
@@ -177,7 +171,6 @@ const SignUp = () => {
               )}
             </motion.div>
           ))}
-
           <motion.button
             type="submit"
             disabled={loading}
@@ -189,7 +182,6 @@ const SignUp = () => {
             {loading ? 'Signing Up...' : 'Sign Up'}
           </motion.button>
         </form>
-
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

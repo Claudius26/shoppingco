@@ -1,0 +1,252 @@
+import { useState, useEffect } from "react";
+
+const SellerProducts = () => {
+  const [products, setProducts] = useState([]);
+  const [form, setForm] = useState({
+    title: "",
+    price: "",
+    quantity: "",
+    description: "",
+    imageUrl: "",
+  });
+  const [imageFile, setImageFile] = useState(null);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [openForm, setOpenForm] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const token = localStorage.getItem("token");
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("http://localhost:5000/api/products/seller", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Failed to fetch products");
+      const data = await res.json();
+      setProducts(data);
+    } catch (error) {
+      console.error("Error loading products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleImageChange = (e) => {
+    setImageFile(e.target.files[0]);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const method = editingProduct ? "PUT" : "POST";
+    const url = editingProduct
+      ? `http://localhost:5000/api/products/seller/${editingProduct.id}`
+      : "http://localhost:5000/api/products/seller";
+
+    const formData = new FormData();
+    formData.append("title", form.title);
+    formData.append("price", form.price);
+    formData.append("quantity", form.quantity);
+    formData.append("description", form.description);
+
+    if (imageFile) {
+      formData.append("image", imageFile);
+    } else if (form.imageUrl) {
+      formData.append("imageUrl", form.imageUrl);
+    }
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to save product");
+      }
+
+      await fetchProducts();
+      setForm({ title: "", price: "", quantity: "", description: "", imageUrl: "" });
+      setImageFile(null);
+      setEditingProduct(null);
+      setOpenForm(false);
+
+      // Show success message
+      setSuccessMessage(editingProduct ? "Product updated successfully!" : "Product added successfully!");
+      setTimeout(() => setSuccessMessage(""), 3000);
+    } catch (err) {
+      console.error("Error saving product:", err);
+      alert(err.message);
+    }
+  };
+
+  const handleEdit = (product) => {
+    setEditingProduct(product);
+    setForm({
+      title: product.title,
+      price: product.price,
+      quantity: product.quantity,
+      description: product.description,
+      imageUrl: product.imageUrl || "",
+    });
+    setOpenForm(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this product?")) return;
+    await fetch(`http://localhost:5000/api/products/seller/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    fetchProducts();
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto p-6">
+      {successMessage && (
+        <div className="mb-4 p-3 rounded-lg bg-green-100 text-green-700 font-medium">
+          {successMessage}
+        </div>
+      )}
+
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-3xl font-bold">Manage Products</h2>
+        <button
+          onClick={() => {
+            setEditingProduct(null);
+            setForm({ title: "", price: "", quantity: "", description: "", imageUrl: "" });
+            setOpenForm(true);
+          }}
+          className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          + Add Product
+        </button>
+      </div>
+
+      {loading ? (
+        <p>Loading...</p>
+      ) : products.length === 0 ? (
+        <p className="text-gray-500">No products found. Add one above.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {products.map((p) => (
+            <div
+              key={p.id}
+              className="border rounded-xl shadow hover:shadow-lg transition p-4 bg-white"
+            >
+              {p.imageUrl && (
+                <img
+                  src={`http://localhost:5000${p.imageUrl}`}
+                  alt={p.title}
+                  className="w-full h-40 object-cover rounded-lg"
+                />
+              )}
+              <h3 className="text-lg font-bold mt-3">{p.title}</h3>
+              <p className="text-gray-700 font-medium">${p.price}</p>
+              <p className="text-sm text-gray-500">Qty: {p.quantity}</p>
+              <p className="text-sm mt-2 line-clamp-3">{p.description}</p>
+              <div className="flex gap-2 mt-4">
+                <button
+                  onClick={() => handleEdit(p)}
+                  className="flex-1 px-3 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(p.id)}
+                  className="flex-1 px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {openForm && (
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-lg relative">
+            <button
+              onClick={() => setOpenForm(false)}
+              className="absolute top-3 right-3 text-gray-500 hover:text-black"
+            >
+              ✕
+            </button>
+            <h3 className="text-xl font-bold mb-4">
+              {editingProduct ? "Edit Product" : "Add Product"}
+            </h3>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <input
+                type="text"
+                name="title"
+                placeholder="Product Title"
+                value={form.title}
+                onChange={handleChange}
+                className="w-full border px-3 py-2 rounded-lg"
+                required
+              />
+              <input
+                type="number"
+                name="price"
+                placeholder="Price"
+                value={form.price}
+                onChange={handleChange}
+                className="w-full border px-3 py-2 rounded-lg"
+                required
+              />
+              <input
+                type="number"
+                name="quantity"
+                placeholder="Quantity"
+                value={form.quantity}
+                onChange={handleChange}
+                className="w-full border px-3 py-2 rounded-lg"
+              />
+              <textarea
+                name="description"
+                placeholder="Description"
+                value={form.description}
+                onChange={handleChange}
+                className="w-full border px-3 py-2 rounded-lg"
+              />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="w-full"
+              />
+              <input
+                type="text"
+                name="imageUrl"
+                placeholder="Or paste Image URL"
+                value={form.imageUrl}
+                onChange={handleChange}
+                className="w-full border px-3 py-2 rounded-lg"
+              />
+              <button
+                type="submit"
+                className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                {editingProduct ? "Update Product" : "Add Product"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default SellerProducts;

@@ -9,6 +9,7 @@ const Navbar = () => {
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
+  const [showRoleOptions, setShowRoleOptions] = useState(false);
   const { getCartCount } = useCart();
   const navigate = useNavigate();
 
@@ -26,6 +27,7 @@ const Navbar = () => {
 
   const toggleAccountMenu = () => {
     setShowAccountMenu(prev => !prev);
+    setShowRoleOptions(false);
   };
 
   const handleLogout = () => {
@@ -81,15 +83,14 @@ const Navbar = () => {
           />
           {showAccountMenu && (
             <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md border text-sm z-30">
-              {!user && (
+              {!user && !showRoleOptions && (
                 <>
-                  <Link
-                    to="/signup"
-                    className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
-                    onClick={() => setShowAccountMenu(false)}
+                  <button
+                    onClick={() => setShowRoleOptions(true)}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-800"
                   >
                     Sign Up
-                  </Link>
+                  </button>
                   <Link
                     to="/login"
                     className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
@@ -100,83 +101,28 @@ const Navbar = () => {
                 </>
               )}
 
-              {user && (
+              {!user && showRoleOptions && (
                 <>
                   <Link
-                    to="/profile"
+                    to="/signup?role=buyer"
                     className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
                     onClick={() => setShowAccountMenu(false)}
                   >
-                    My Profile
+                    Register as Buyer
                   </Link>
                   <Link
-                    to="/settings"
+                    to="/signup?role=seller"
                     className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
                     onClick={() => setShowAccountMenu(false)}
                   >
-                    Settings
+                    Register as Seller
                   </Link>
                   <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-800"
+                    onClick={() => setShowRoleOptions(false)}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-800"
                   >
-                    Logout
+                    Back
                   </button>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="md:hidden flex items-center space-x-4 relative">
-        {showMobileSearch ? (
-          <div className="flex items-center border border-gray-300 rounded-md px-3 py-1 bg-gray-100 w-40">
-            <input
-              type="text"
-              placeholder="Search"
-              className="bg-transparent focus:outline-none text-sm w-full"
-              autoFocus
-            />
-          </div>
-        ) : (
-          <button onClick={toggleMobileSearch}>
-            <img src={searchIcon} alt="Search" className="w-5 h-5 cursor-pointer" />
-          </button>
-        )}
-
-        <Link to="/cart" className="relative">
-          <img src={cartIcon} alt="Cart" className="w-5 h-5 cursor-pointer" />
-          {cartCount > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs px-1.5 rounded-full">{cartCount}</span>
-          )}
-        </Link>
-
-        <div className="relative">
-          <img
-            src={accountIcon}
-            alt="Account"
-            className="w-5 h-5 cursor-pointer"
-            onClick={toggleAccountMenu}
-          />
-          {showAccountMenu && (
-            <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md border text-sm z-30">
-              {!user && (
-                <>
-                  <Link
-                    to="/signup"
-                    className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
-                    onClick={() => setShowAccountMenu(false)}
-                  >
-                    Sign Up
-                  </Link>
-                  <Link
-                    to="/login"
-                    className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
-                    onClick={() => setShowAccountMenu(false)}
-                  >
-                    Log In
-                  </Link>
                 </>
               )}
 
