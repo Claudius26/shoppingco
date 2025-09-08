@@ -47,7 +47,7 @@ const Navbar = () => {
             <span className="text-2xl font-bold cursor-pointer">&#9776;</span>
           </button>
         </div>
-        <h2 className="text-2xl font-bold text-gray-800">SHOP.CO</h2>
+        <h2 className="text-2xl font-bold text-gray-800">SHOP.COM</h2>
       </div>
 
       <nav className="hidden md:flex space-x-6 text-gray-600 text-sm font-medium">
