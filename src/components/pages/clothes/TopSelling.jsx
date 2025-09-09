@@ -7,7 +7,6 @@ const TopSelling = () => {
   const { data: products, isLoading, error } = useGetAllProductsQuery();
   const { addToCart } = useCart();
   const navigate = useNavigate();
-
   const [showAll, setShowAll] = useState(false);
   const sectionRef = useRef(null);
 
@@ -17,6 +16,7 @@ const TopSelling = () => {
       <span className="ml-4 text-lg text-yellow-700 font-semibold">Loading...</span>
     </div>
   );
+
   if (error) return (
     <div className="flex items-center justify-center min-h-[300px] text-red-600 font-semibold">
       Unable to load products. {error.message}
@@ -25,7 +25,7 @@ const TopSelling = () => {
 
   const topSelling = products
     .slice()
-    .sort((a, b) => b.rating.count - a.rating.count);
+    .sort((a, b) => (b.rating?.count || 0) - (a.rating?.count || 0));
 
   const visibleProducts = showAll ? topSelling : topSelling.slice(0, 4);
 
@@ -33,19 +33,19 @@ const TopSelling = () => {
     if (showAll && sectionRef.current) {
       sectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    setShowAll((prev) => !prev);
+    setShowAll(prev => !prev);
   };
 
   return (
     <section ref={sectionRef} className="py-14 px-4 md:px-20 bg-gradient-to-br from-yellow-50 via-yellow-100 to-white rounded-3xl shadow-lg">
       <h2 className="text-4xl font-extrabold mb-8 text-center text-yellow-700 drop-shadow-lg tracking-tight">Top Selling Products</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-        {visibleProducts.map((product) => (
+        {visibleProducts.map(product => (
           <div key={product.id} className="border border-yellow-100 rounded-2xl p-5 shadow-lg hover:shadow-2xl transition-all bg-white flex flex-col group">
             <Link to={`/product/${product.id}`}>
               <div className="bg-gradient-to-br from-yellow-100 via-yellow-50 to-white p-4 rounded-xl h-44 flex justify-center items-center mb-3 overflow-hidden">
                 <img
-                  src={product.image}
+                  src={product.imageUrl}
                   alt={product.title}
                   className="h-full object-contain transition-transform duration-300 group-hover:scale-105"
                 />
@@ -57,13 +57,13 @@ const TopSelling = () => {
               <div className="flex items-center mt-2 text-yellow-500 text-base">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <span key={i}>
-                    {i < Math.round(product.rating.rate) ? '★' : '☆'}
+                    {i < Math.round(product.rating?.rate || 0) ? '★' : '☆'}
                   </span>
                 ))}
-                <span className="text-gray-600 ml-2 text-sm">{product.rating.rate}</span>
+                <span className="text-gray-600 ml-2 text-sm">{product.rating?.rate || '-'}</span>
               </div>
             </Link>
-           <button
+            <button
               onClick={() => navigate(`/product/${product.id}`)}
               className="mt-4 bg-gradient-to-r from-blue-600 to-sky-400 text-white py-2 rounded-xl hover:scale-105 hover:from-blue-700 hover:to-sky-500 transition-transform font-semibold shadow"
             >
@@ -72,6 +72,7 @@ const TopSelling = () => {
           </div>
         ))}
       </div>
+
       <div className="text-center mt-8">
         <button
           onClick={toggleView}

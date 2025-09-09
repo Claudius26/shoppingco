@@ -38,7 +38,7 @@ const Shop = () => {
               className="bg-gradient-to-br from-sky-200 via-blue-100 to-white p-4 rounded-xl h-44 flex justify-center items-center mb-3 overflow-hidden cursor-pointer"
               onClick={() => navigate(`/product/${product.id}`)}
             >
-              <img src={product.image} alt={product.title} className="h-full object-contain transition-transform duration-300 group-hover:scale-105" />
+              <img src={product.imageUrl} alt={product.title} className="h-full object-contain transition-transform duration-300 group-hover:scale-105" />
             </div>
             <h3
               onClick={() => navigate(`/product/${product.id}`)}
@@ -52,10 +52,10 @@ const Shop = () => {
             <div className="flex items-center mt-2 text-yellow-500 text-base">
               {Array.from({ length: 5 }).map((_, i) => (
                 <span key={i}>
-                  {i < Math.round(product.rating?.rate) ? '★' : '☆'}
+                  {i < Math.round(product.rating?.rate || 0) ? '★' : '☆'}
                 </span>
               ))}
-              <span className="text-gray-600 ml-2 text-sm">{product.rating?.rate}</span>
+              <span className="text-gray-600 ml-2 text-sm">{product.rating?.rate || '-'}</span>
             </div>
             <button
               onClick={() => navigate(`/product/${product.id}`)}

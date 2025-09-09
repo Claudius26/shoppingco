@@ -65,7 +65,7 @@ const Cart = () => {
               >
                 <div className="flex items-center justify-between w-full gap-4 flex-wrap sm:flex-nowrap">
                   <img
-                    src={item.image}
+                    src={item.imageUrl}
                     alt={item.title}
                     className="w-16 h-16 sm:w-24 sm:h-24 object-contain rounded-xl border border-blue-100 bg-white"
                   />

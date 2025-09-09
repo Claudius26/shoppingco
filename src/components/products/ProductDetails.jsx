@@ -36,7 +36,6 @@ const ProductDetails = () => {
     </div>
   );
 
-  // ✅ Check if products exist before finding product
   if (!products || products.length === 0) return null;
 
   const product = products.find((p) => p.id === parseInt(id));
@@ -53,7 +52,7 @@ const ProductDetails = () => {
 
   const handleColorChange = (color) => {
     setSelectedColor(color);
-    setSelectedImage(`${product.image}?color=${color}`);
+    setSelectedImage(`${product.imageUrl}?color=${color}`);
   };
 
   const handleSizeChange = (size) => setSelectedSize(size);
@@ -74,7 +73,6 @@ const ProductDetails = () => {
       alert('Please select both color and size before adding to cart.');
       return;
     }
-
     addToCart({
       ...product,
       quantity,
@@ -97,14 +95,14 @@ const ProductDetails = () => {
         <div className="flex md:flex-col gap-4">
           {[1, 2, 3].map((num) => (
             <div key={num} className="w-24 h-32 bg-white flex items-center justify-center p-2 border border-blue-100 cursor-pointer rounded-xl shadow hover:scale-105 transition">
-              <img src={product.image} alt="thumb" className="h-full object-contain" />
+              <img src={product.imageUrl} alt="thumb" className="h-full object-contain" />
             </div>
           ))}
         </div>
 
         <div className="flex-1 bg-white p-4 rounded-2xl flex justify-center items-center h-[400px] shadow">
           <img
-            src={selectedImage || product.image}
+            src={selectedImage || product.imageUrl}
             alt={product.title}
             className="h-full object-contain transition-transform duration-300"
           />
@@ -118,9 +116,9 @@ const ProductDetails = () => {
 
           <div className="text-yellow-500 text-base mb-4 flex items-center gap-1">
             {Array.from({ length: 5 }).map((_, i) => (
-              <span key={i}>{i < Math.round(product.rating.rate) ? '★' : '☆'}</span>
+              <span key={i}>{i < Math.round(product.rating?.rate || 0) ? '★' : '☆'}</span>
             ))}
-            <span className="ml-2 text-gray-600">{product.rating.rate}</span>
+            <span className="ml-2 text-gray-600">{product.rating?.rate || '-'}</span>
           </div>
 
           <div className="mb-4">
@@ -135,7 +133,6 @@ const ProductDetails = () => {
                 />
               ))}
             </div>
-            {/* ✅ Show selected color */}
             {selectedColor && (
               <p className="mt-2 text-sm text-gray-600">
                 Selected Color:
@@ -157,7 +154,6 @@ const ProductDetails = () => {
                 </button>
               ))}
             </div>
-            {/* ✅ Show selected size */}
             {selectedSize && (
               <p className="mt-2 text-sm text-gray-600">Selected Size: {selectedSize}</p>
             )}
@@ -185,16 +181,13 @@ const ProductDetails = () => {
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div
           onClick={() => setActiveTab('details')}
           className={`border p-4 cursor-pointer rounded-xl shadow transition ${activeTab === 'details' ? 'border-blue-600 bg-blue-50' : 'bg-white hover:bg-gray-50'}`}
         >
           <h3 className="font-bold text-blue-700 mb-2">Product Details</h3>
-          <p className="text-sm text-gray-600">
-            {product.description}
-          </p>
+          <p className="text-sm text-gray-600">{product.description}</p>
         </div>
 
         <div
@@ -230,7 +223,6 @@ const ProductDetails = () => {
         </div>
       </div>
 
-      {/* Recommended */}
       <div className="mt-16">
         <h2 className="text-2xl font-bold text-blue-900 mb-6">You may also like</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -240,9 +232,15 @@ const ProductDetails = () => {
               className="bg-white p-4 rounded-xl shadow hover:scale-105 transition cursor-pointer"
               onClick={() => navigate(`/product/${rec.id}`)}
             >
-              <img src={rec.image} alt={rec.title} className="h-40 mx-auto object-contain" />
+              <img src={rec.imageUrl} alt={rec.title} className="h-40 mx-auto object-contain" />
               <h3 className="mt-2 text-sm font-semibold text-gray-800 line-clamp-2">{rec.title}</h3>
               <p className="text-green-600 font-bold mt-1">${rec.price}</p>
+              <div className="text-yellow-500 text-sm">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <span key={i}>{i < Math.round(rec.rating?.rate || 0) ? '★' : '☆'}</span>
+                ))}
+                <span className="ml-1 text-gray-500">{rec.rating?.rate || '-'}</span>
+              </div>
             </div>
           ))}
         </div>

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useGetAllProductsQuery } from '../../products/productApiSlice';
 import { Link, useNavigate } from 'react-router';
-import { useCart } from '../../../context/CartContext'; 
+import { useCart } from '../../../context/CartContext';
 
 const NewArrival = () => {
   const { data: products, isLoading, error } = useGetAllProductsQuery();
@@ -16,6 +16,7 @@ const NewArrival = () => {
       <span className="ml-4 text-lg text-sky-700 font-semibold">Loading...</span>
     </div>
   );
+
   if (error) return (
     <div className="flex items-center justify-center min-h-[300px] text-red-600 font-semibold">
       Unable to load products. {error.message}
@@ -45,7 +46,7 @@ const NewArrival = () => {
             <Link to={`/product/${product.id}`}>
               <div className="bg-gradient-to-br from-sky-200 via-blue-100 to-white p-4 rounded-xl h-44 flex justify-center items-center mb-3 overflow-hidden">
                 <img
-                  src={product.image}
+                  src={product.imageUrl}
                   alt={product.title}
                   className="h-full object-contain transition-transform duration-300 group-hover:scale-105"
                 />
@@ -57,10 +58,10 @@ const NewArrival = () => {
               <div className="flex items-center mt-2 text-yellow-500 text-base">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <span key={i}>
-                    {i < Math.round(product.rating.rate) ? '★' : '☆'}
+                    {i < Math.round(product.rating?.rate || 0) ? '★' : '☆'}
                   </span>
                 ))}
-                <span className="text-gray-600 ml-2 text-sm">{product.rating.rate}</span>
+                <span className="text-gray-600 ml-2 text-sm">{product.rating?.rate || '-'}</span>
               </div>
             </Link>
             <button
@@ -84,4 +85,5 @@ const NewArrival = () => {
     </section>
   );
 };
+
 export default NewArrival;
