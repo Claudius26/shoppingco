@@ -16,11 +16,12 @@ const SellerProducts = () => {
   const [successMessage, setSuccessMessage] = useState("");
 
   const token = localStorage.getItem("token");
+  const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/products/seller", {
+      const res = await fetch(`${API_BASE}/products/seller`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Failed to fetch products");
@@ -49,8 +50,8 @@ const SellerProducts = () => {
     e.preventDefault();
     const method = editingProduct ? "PUT" : "POST";
     const url = editingProduct
-      ? `http://localhost:5000/api/products/seller/${editingProduct.id}`
-      : "http://localhost:5000/api/products/seller";
+      ? `${API_BASE}/products/seller/${editingProduct.id}`
+      : `${API_BASE}/products/seller`;
 
     const formData = new FormData();
     formData.append("title", form.title);
@@ -82,7 +83,6 @@ const SellerProducts = () => {
       setEditingProduct(null);
       setOpenForm(false);
 
-      // Show success message
       setSuccessMessage(editingProduct ? "Product updated successfully!" : "Product added successfully!");
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (err) {
@@ -105,7 +105,7 @@ const SellerProducts = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
-    await fetch(`http://localhost:5000/api/products/seller/${id}`, {
+    await fetch(`${API_BASE}/products/seller/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -145,9 +145,9 @@ const SellerProducts = () => {
               key={p.id}
               className="border rounded-xl shadow hover:shadow-lg transition p-4 bg-white"
             >
-              {p.imageUrl && (
+              {p.image && (
                 <img
-                  src={`http://localhost:5000${p.imageUrl}`}
+                  src={p.image}
                   alt={p.title}
                   className="w-full h-40 object-cover rounded-lg"
                 />
