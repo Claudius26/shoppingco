@@ -17,13 +17,15 @@ const Login = () => {
     }));
   };
 
+  const Api_BASE = import.meta.env.VITE_API_BASE_URL;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
+      const res = await fetch(`${Api_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -35,11 +37,11 @@ const Login = () => {
         throw new Error(data.message || 'Login failed');
       }
 
-      // ✅ Store token + user data
+    
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
 
-      // ✅ Redirect based on role
+      
       if (data.user.role === 'seller') {
         navigate('/seller/dashboard');
       } else {

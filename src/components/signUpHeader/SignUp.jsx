@@ -70,6 +70,8 @@ const SignUp = () => {
     setErrors(prev => ({ ...prev, [e.target.name]: null }));
   };
 
+  const Api_BASE = import.meta.env.VITE_API_BASE_URL;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
@@ -78,7 +80,7 @@ const SignUp = () => {
     setMessage(null);
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/register', {
+      const res = await fetch(`${Api_BASE}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
