@@ -109,10 +109,10 @@ const ProductDetails = () => {
         </div>
 
         <div className="flex-1">
-          <h1 className="text-3xl font-extrabold mb-4 text-blue-900">{product.title}</h1>
-          <p className="text-gray-700 mb-4">{product.description}</p>
+          <h1 className="text-3xl font-extrabold mb-4 text-blue-900">Name: {product.title}</h1>
+          <p className="text-gray-700 mb-4">Description: {product.description}</p>
           <p className="text-sm text-blue-500 mb-2">Category: {product.category}</p>
-          <p className="text-2xl font-bold text-green-600 mb-2">${product.price}</p>
+          <p className="text-2xl font-bold text-green-600 mb-2">Price: ${product.price}</p>
 
           <div className="text-yellow-500 text-base mb-4 flex items-center gap-1">
             {Array.from({ length: 5 }).map((_, i) => (
