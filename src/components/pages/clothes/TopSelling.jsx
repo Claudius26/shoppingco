@@ -1,86 +1,72 @@
-import React, { useState, useRef } from 'react';
-import { useGetAllProductsQuery } from '../../products/productApiSlice';
-import { Link, useNavigate } from 'react-router';
-import { useCart } from '../../../context/CartContext'; 
+import React, { useEffect, useState } from "react";
+import { useGetAllProductsQuery } from "../../products/productApiSlice";
+import { useNavigate } from "react-router";
 
 const TopSelling = () => {
-  const { data: products, isLoading, error } = useGetAllProductsQuery();
-  const { addToCart } = useCart();
+  const { data: products = [], isLoading, error } = useGetAllProductsQuery();
   const navigate = useNavigate();
-  const [showAll, setShowAll] = useState(false);
-  const sectionRef = useRef(null);
+  const [shuffledProducts, setShuffledProducts] = useState([]);
 
-  if (isLoading) return (
-    <div className="flex items-center justify-center min-h-[300px]">
-      <span className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-yellow-400"></span>
-      <span className="ml-4 text-lg text-yellow-700 font-semibold">Loading...</span>
-    </div>
-  );
-
-  if (error) return (
-    <div className="flex items-center justify-center min-h-[300px] text-red-600 font-semibold">
-      Unable to load products. {error.message}
-    </div>
-  );
-
-  const topSelling = products
-    .slice()
-    .sort((a, b) => (b.rating?.count || 0) - (a.rating?.count || 0));
-
-  const visibleProducts = showAll ? topSelling : topSelling.slice(0, 4);
-
-  const toggleView = () => {
-    if (showAll && sectionRef.current) {
-      sectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  useEffect(() => {
+    if (products.length > 0) {
+      const topSelling = [...products].sort((a, b) => (b.rating?.count || 0) - (a.rating?.count || 0));
+      const shuffled = topSelling.sort(() => Math.random() - 0.5);
+      setShuffledProducts(shuffled);
     }
-    setShowAll(prev => !prev);
-  };
+  }, [products]);
+
+  if (isLoading)
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[300px]">
+        <span className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-yellow-400"></span>
+        <span className="ml-4 text-lg text-yellow-700 font-semibold">Loading...</span>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="flex items-center justify-center min-h-[300px] text-red-600 font-semibold">
+        Unable to load products.
+      </div>
+    );
 
   return (
-    <section ref={sectionRef} className="py-14 px-4 md:px-20 bg-gradient-to-br from-yellow-50 via-yellow-100 to-white rounded-3xl shadow-lg">
-      <h2 className="text-4xl font-extrabold mb-8 text-center text-yellow-700 drop-shadow-lg tracking-tight">Top Selling Products</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-        {visibleProducts.map(product => (
-          <div key={product.id} className="border border-yellow-100 rounded-2xl p-5 shadow-lg hover:shadow-2xl transition-all bg-white flex flex-col group">
-            <Link to={`/product/${product.id}`}>
-              <div className="bg-gradient-to-br from-yellow-100 via-yellow-50 to-white p-4 rounded-xl h-44 flex justify-center items-center mb-3 overflow-hidden">
+    <section className="px-4 md:px-20 py-14 bg-gray-50 min-h-screen">
+      <h2 className="text-4xl font-extrabold mb-12 text-center text-yellow-700 drop-shadow-md tracking-tight">
+        Top Selling Products
+      </h2>
+      {shuffledProducts.length === 0 ? (
+        <div className="text-center text-gray-500 font-semibold py-20">
+          No products available in the store.
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-4">
+          {shuffledProducts.map((product) => (
+            <div
+              key={product.id}
+              onClick={() => navigate(`/product/${product.id}`)}
+              className="relative group cursor-pointer overflow-hidden rounded-2xl shadow-lg transform transition-all hover:scale-105 hover:shadow-2xl bg-white"
+            >
+              <div className="absolute top-2 left-2 bg-yellow-400 text-white text-[10px] font-bold px-2 py-1 rounded rotate-[-12deg] shadow-lg z-10">
+                TOP
+              </div>
+              <div className="h-32 md:h-40 w-full overflow-hidden">
                 <img
-                  src={product.imageUrl}
+                  src={product.imageUrl || "/placeholder.png"}
                   alt={product.title}
-                  className="h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 />
               </div>
-              <h3 className="text-base font-semibold text-yellow-900 mb-1 truncate">{product.title}</h3>
-              <p className="text-gray-500 text-sm mb-2 truncate">{product.description}</p>
-              <p className="text-yellow-500 text-xs mb-2">{product.category}</p>
-              <p className="text-green-600 font-bold mt-1 text-lg">${product.price}</p>
-              <div className="flex items-center mt-2 text-yellow-500 text-base">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <span key={i}>
-                    {i < Math.round(product.rating?.rate || 0) ? '★' : '☆'}
-                  </span>
-                ))}
-                <span className="text-gray-600 ml-2 text-sm">{product.rating?.rate || '-'}</span>
+              <div className="absolute bottom-0 w-full bg-gradient-to-t from-black/70 to-transparent p-2">
+                <h3 className="font-semibold text-white text-sm truncate">Name: {product.title}</h3>
+                <p className="text-gray-300 text-xs truncate">Cat: {product.category}</p>
+                <p className="text-gray-300 text-xs truncate">Brand: {product.brand || "-"}</p>
+                <p className="text-green-400 font-bold text-sm truncate">Price: ${product.price}</p>
               </div>
-            </Link>
-            <button
-              onClick={() => navigate(`/product/${product.id}`)}
-              className="mt-4 bg-gradient-to-r from-blue-600 to-sky-400 text-white py-2 rounded-xl hover:scale-105 hover:from-blue-700 hover:to-sky-500 transition-transform font-semibold shadow"
-            >
-              Add to Cart
-            </button>
-          </div>
-        ))}
-      </div>
-
-      <div className="text-center mt-8">
-        <button
-          onClick={toggleView}
-          className="px-8 py-3 bg-gradient-to-r from-yellow-500 to-yellow-400 text-white rounded-full hover:scale-105 hover:from-yellow-600 hover:to-yellow-500 transition-transform font-bold shadow"
-        >
-          {showAll ? 'View Less' : 'View More'}
-        </button>
-      </div>
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 };
