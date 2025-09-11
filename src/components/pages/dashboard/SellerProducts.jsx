@@ -10,9 +10,11 @@ const SellerProducts = () => {
     quantity: "",
     description: "",
     imageUrl: "",
+    brand: "",
     sku: "",
     tags: "",
     category: "",
+    available: true,
   });
   const [imageFile, setImageFile] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -23,6 +25,7 @@ const SellerProducts = () => {
   const token = localStorage.getItem("token");
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
+  // Fetch seller products
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -32,21 +35,22 @@ const SellerProducts = () => {
       if (!res.ok) throw new Error("Failed to fetch products");
       const data = await res.json();
       setProducts(data);
-    } catch (error) {
-      console.error("Error loading products:", error);
+    } catch (err) {
+      console.error("Error loading products:", err);
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch product categories
   const fetchCategories = async () => {
     try {
       const res = await fetch(`${API_BASE}/products/categories`);
       if (!res.ok) throw new Error("Failed to fetch categories");
       const data = await res.json();
       setCategories(data);
-    } catch (error) {
-      console.error("Error loading categories:", error);
+    } catch (err) {
+      console.error("Error loading categories:", err);
     }
   };
 
@@ -55,14 +59,17 @@ const SellerProducts = () => {
     fetchCategories();
   }, []);
 
+  // Handle form input changes
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    setForm({ ...form, [name]: type === "checkbox" ? checked : value });
   };
 
   const handleImageChange = (e) => {
     setImageFile(e.target.files[0]);
   };
 
+  // Submit product (create or update)
   const handleSubmit = async (e) => {
     e.preventDefault();
     const method = editingProduct ? "PUT" : "POST";
@@ -71,15 +78,18 @@ const SellerProducts = () => {
       : `${API_BASE}/products/seller`;
 
     const formData = new FormData();
-    // Only append non-empty fields
+
     Object.entries(form).forEach(([key, value]) => {
       if (value !== null && value !== undefined && value !== "") {
-        formData.append(key, value);
+        if (key === "tags") {
+          formData.append(key, value); // backend will split to array
+        } else {
+          formData.append(key, value);
+        }
       }
     });
 
-    if (imageFile) formData.append("file", imageFile); // must match backend req.file
-    else if (form.imageUrl) formData.append("imageUrl", form.imageUrl);
+    if (imageFile) formData.append("image", imageFile);
 
     try {
       const res = await fetch(url, {
@@ -100,17 +110,17 @@ const SellerProducts = () => {
         quantity: "",
         description: "",
         imageUrl: "",
+        brand: "",
         sku: "",
         tags: "",
         category: "",
+        available: true,
       });
       setImageFile(null);
       setEditingProduct(null);
       setOpenForm(false);
       setSuccessMessage(
-        editingProduct
-          ? "Product updated successfully!"
-          : "Product added successfully!"
+        editingProduct ? "Product updated successfully!" : "Product added successfully!"
       );
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (err) {
@@ -119,21 +129,25 @@ const SellerProducts = () => {
     }
   };
 
+  // Edit product
   const handleEdit = (product) => {
     setEditingProduct(product);
     setForm({
       title: product.title || "",
       price: product.price || "",
-      quantity: product.quantity || "",
+      quantity: product.quantity || 0,
       description: product.description || "",
       imageUrl: product.imageUrl || "",
+      brand: product.brand || "",
       sku: product.sku || "",
       tags: (product.tags || []).join(", "),
       category: product.category || "",
+      available: product.available,
     });
     setOpenForm(true);
   };
 
+  // Delete product
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
     try {
@@ -168,9 +182,11 @@ const SellerProducts = () => {
               quantity: "",
               description: "",
               imageUrl: "",
+              brand: "",
               sku: "",
               tags: "",
               category: "",
+              available: true,
             });
             setOpenForm(true);
           }}
@@ -198,11 +214,12 @@ const SellerProducts = () => {
                   className="w-full h-40 object-cover rounded-lg"
                 />
               )}
-              <h3 className="text-lg font-bold mt-3">{p.title}</h3>
-              <p className="text-gray-700 font-medium">${p.price}</p>
-              <p className="text-sm text-gray-500">Qty: {p.quantity}</p>
+              <h3 className="text-lg font-bold mt-3">Name: {p.title}</h3>
+              <p className="text-gray-700 font-medium">Price: ${p.price}</p>
+              <p className="text-sm text-gray-500">Quantity: {p.quantity}</p>
               <p className="text-xs text-gray-500">Category: {p.category}</p>
-              <p className="text-sm mt-2 line-clamp-3">{p.description}</p>
+              <p className="text-xs text-gray-500">Brand: {p.brand}</p>
+              <p className="text-sm mt-2 line-clamp-3">Description: {p.description}</p>
               <div className="flex gap-2 mt-4">
                 <button
                   onClick={() => handleEdit(p)}
@@ -269,6 +286,14 @@ const SellerProducts = () => {
                 />
                 <input
                   type="text"
+                  name="brand"
+                  placeholder="Brand"
+                  value={form.brand}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded-lg"
+                />
+                <input
+                  type="text"
                   name="tags"
                   placeholder="Tags (comma separated)"
                   value={form.tags}
@@ -327,6 +352,15 @@ const SellerProducts = () => {
                   onChange={handleChange}
                   className="w-full border px-3 py-2 rounded-lg"
                 />
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    name="available"
+                    checked={form.available}
+                    onChange={handleChange}
+                  />
+                  Available
+                </label>
                 <button
                   type="submit"
                   className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
