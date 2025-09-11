@@ -70,7 +70,7 @@ const Cart = () => {
                     className="w-16 h-16 sm:w-24 sm:h-24 object-contain rounded-xl border border-blue-100 bg-white"
                   />
                   <div className="flex-1 min-w-0 text-left">
-                    <h3 className="font-semibold text-base sm:text-lg text-blue-900 break-words">
+                    <h3 className="font-semibold text-base sm:text-lg text-blue-900 break-words">Name: 
                       {item.title}
                     </h3>
                     <p className="text-sm text-blue-600">Size: {item.size}</p>
@@ -81,7 +81,7 @@ const Cart = () => {
                         style={{ backgroundColor: item.color }}
                       />
                     </p>
-                    <p className="mt-2 font-bold text-blue-700 text-lg">${item.price}</p>
+                    <p className="mt-2 font-bold text-blue-700 text-lg">Price: ${item.price}</p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <button
