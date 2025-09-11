@@ -1,13 +1,18 @@
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const SellerProducts = () => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({
     title: "",
     price: "",
     quantity: "",
     description: "",
     imageUrl: "",
+    sku: "",
+    tags: "",
+    category: "",
   });
   const [imageFile, setImageFile] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -34,8 +39,20 @@ const SellerProducts = () => {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/products/categories`);
+      if (!res.ok) throw new Error("Failed to fetch categories");
+      const data = await res.json();
+      setCategories(data);
+    } catch (error) {
+      console.error("Error loading categories:", error);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
 
   const handleChange = (e) => {
@@ -54,10 +71,9 @@ const SellerProducts = () => {
       : `${API_BASE}/products/seller`;
 
     const formData = new FormData();
-    formData.append("title", form.title);
-    formData.append("price", form.price);
-    formData.append("quantity", form.quantity);
-    formData.append("description", form.description);
+    Object.keys(form).forEach((key) => {
+      formData.append(key, form[key]);
+    });
 
     if (imageFile) {
       formData.append("image", imageFile);
@@ -78,12 +94,25 @@ const SellerProducts = () => {
       }
 
       await fetchProducts();
-      setForm({ title: "", price: "", quantity: "", description: "", imageUrl: "" });
+      setForm({
+        title: "",
+        price: "",
+        quantity: "",
+        description: "",
+        imageUrl: "",
+        sku: "",
+        tags: "",
+        category: "",
+      });
       setImageFile(null);
       setEditingProduct(null);
       setOpenForm(false);
 
-      setSuccessMessage(editingProduct ? "Product updated successfully!" : "Product added successfully!");
+      setSuccessMessage(
+        editingProduct
+          ? "Product updated successfully!"
+          : "Product added successfully!"
+      );
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (err) {
       console.error("Error saving product:", err);
@@ -99,6 +128,9 @@ const SellerProducts = () => {
       quantity: product.quantity,
       description: product.description,
       imageUrl: product.imageUrl || "",
+      sku: product.sku || "",
+      tags: (product.tags || []).join(", "),
+      category: product.category || "",
     });
     setOpenForm(true);
   };
@@ -125,7 +157,16 @@ const SellerProducts = () => {
         <button
           onClick={() => {
             setEditingProduct(null);
-            setForm({ title: "", price: "", quantity: "", description: "", imageUrl: "" });
+            setForm({
+              title: "",
+              price: "",
+              quantity: "",
+              description: "",
+              imageUrl: "",
+              sku: "",
+              tags: "",
+              category: "",
+            });
             setOpenForm(true);
           }}
           className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -145,9 +186,9 @@ const SellerProducts = () => {
               key={p.id}
               className="border rounded-xl shadow hover:shadow-lg transition p-4 bg-white"
             >
-              {p.image && (
+              {p.imageUrl && (
                 <img
-                  src={p.image}
+                  src={p.imageUrl}
                   alt={p.title}
                   className="w-full h-40 object-cover rounded-lg"
                 />
@@ -155,6 +196,7 @@ const SellerProducts = () => {
               <h3 className="text-lg font-bold mt-3">{p.title}</h3>
               <p className="text-gray-700 font-medium">${p.price}</p>
               <p className="text-sm text-gray-500">Qty: {p.quantity}</p>
+              <p className="text-xs text-gray-500">Category: {p.category}</p>
               <p className="text-sm mt-2 line-clamp-3">{p.description}</p>
               <div className="flex gap-2 mt-4">
                 <button
@@ -175,76 +217,123 @@ const SellerProducts = () => {
         </div>
       )}
 
-      {openForm && (
-        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-lg relative">
-            <button
-              onClick={() => setOpenForm(false)}
-              className="absolute top-3 right-3 text-gray-500 hover:text-black"
+      <AnimatePresence>
+        {openForm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex justify-end z-50"
+            onClick={() => setOpenForm(false)}
+          >
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="bg-white h-full w-full max-w-lg shadow-xl relative p-6 overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
             >
-              ✕
-            </button>
-            <h3 className="text-xl font-bold mb-4">
-              {editingProduct ? "Edit Product" : "Add Product"}
-            </h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                type="text"
-                name="title"
-                placeholder="Product Title"
-                value={form.title}
-                onChange={handleChange}
-                className="w-full border px-3 py-2 rounded-lg"
-                required
-              />
-              <input
-                type="number"
-                name="price"
-                placeholder="Price"
-                value={form.price}
-                onChange={handleChange}
-                className="w-full border px-3 py-2 rounded-lg"
-                required
-              />
-              <input
-                type="number"
-                name="quantity"
-                placeholder="Quantity"
-                value={form.quantity}
-                onChange={handleChange}
-                className="w-full border px-3 py-2 rounded-lg"
-              />
-              <textarea
-                name="description"
-                placeholder="Description"
-                value={form.description}
-                onChange={handleChange}
-                className="w-full border px-3 py-2 rounded-lg"
-              />
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="w-full"
-              />
-              <input
-                type="text"
-                name="imageUrl"
-                placeholder="Or paste Image URL"
-                value={form.imageUrl}
-                onChange={handleChange}
-                className="w-full border px-3 py-2 rounded-lg"
-              />
               <button
-                type="submit"
-                className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                onClick={() => setOpenForm(false)}
+                className="absolute top-3 right-3 text-gray-500 hover:text-black"
               >
-                {editingProduct ? "Update Product" : "Add Product"}
+                ✕
               </button>
-            </form>
-          </div>
-        </div>
-      )}
+              <h3 className="text-xl font-bold mb-4">
+                {editingProduct ? "Edit Product" : "Add Product"}
+              </h3>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <input
+                  type="text"
+                  name="title"
+                  placeholder="Product Title"
+                  value={form.title}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded-lg"
+                  required
+                />
+                <input
+                  type="text"
+                  name="sku"
+                  placeholder="SKU (unique product code)"
+                  value={form.sku}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded-lg"
+                  required
+                />
+                <input
+                  type="text"
+                  name="tags"
+                  placeholder="Tags (comma separated)"
+                  value={form.tags}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded-lg"
+                  required
+                />
+                <select
+                  name="category"
+                  value={form.category}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded-lg"
+                  required
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="number"
+                  name="price"
+                  placeholder="Price"
+                  value={form.price}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded-lg"
+                  required
+                />
+                <input
+                  type="number"
+                  name="quantity"
+                  placeholder="Quantity"
+                  value={form.quantity}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded-lg"
+                />
+                <textarea
+                  name="description"
+                  placeholder="Description"
+                  value={form.description}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded-lg"
+                />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="w-full"
+                />
+                <input
+                  type="text"
+                  name="imageUrl"
+                  placeholder="Or paste Image URL"
+                  value={form.imageUrl}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded-lg"
+                />
+                <button
+                  type="submit"
+                  className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  {editingProduct ? "Update Product" : "Add Product"}
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
