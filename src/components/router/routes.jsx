@@ -14,19 +14,32 @@ import Checkout from "../pages/Checkout";
 import Profile from "../signUpHeader/Profile";
 import Settings from "../signUpHeader/Settings";
 
-// Seller
 import SellerLayout from "../pages/dashboard/SellerLayout";
 import SellerDashboard from "../pages/dashboard/SellerDashboard";
 import SellerProducts from "../pages/dashboard/SellerProducts";
 import SellerOrders from "../pages/dashboard/SellerOrders";
 import SellerProfile from "../pages/dashboard/SellerProfile";
-import SellerActivity from "../pages/dashboard/SellerActivity"; // ✅ Added
+import SellerActivity from "../pages/dashboard/SellerActivity";
+
+import { useEffect } from "react";
+import { useLocation } from "react-router";
+
+function ScrollToTop({ children }) {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return children;
+}
 
 const router = createBrowserRouter([
-  // 🔹 Buyer / Public Layout
   {
     path: "/",
-    element: <MainLayout />,
+    element: (
+      <ScrollToTop>
+        <MainLayout />
+      </ScrollToTop>
+    ),
     children: [
       { index: true, element: <HomePage /> },
       { path: "design-logo-page", element: <DesignLogoPage /> },
@@ -41,21 +54,21 @@ const router = createBrowserRouter([
       { path: "settings", element: <Settings /> },
     ],
   },
-
-  // 🔹 Auth Pages
   { path: "signup", element: <SignUp /> },
   { path: "login", element: <Login /> },
-
-  // 🔹 Seller Layout
   {
     path: "/seller",
-    element: <SellerLayout />,
+    element: (
+      <ScrollToTop>
+        <SellerLayout />
+      </ScrollToTop>
+    ),
     children: [
       { path: "dashboard", element: <SellerDashboard /> },
       { path: "products", element: <SellerProducts /> },
       { path: "orders", element: <SellerOrders /> },
       { path: "profile", element: <SellerProfile /> },
-      { path: "activity", element: <SellerActivity /> }, // ✅ Added
+      { path: "activity", element: <SellerActivity /> },
     ],
   },
 ]);
