@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Loader2, Upload, Trash2, Pencil } from "lucide-react";
 
 const SellerProducts = () => {
   const [products, setProducts] = useState([]);
@@ -21,11 +22,11 @@ const SellerProducts = () => {
   const [loading, setLoading] = useState(false);
   const [openForm, setOpenForm] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [actionLoading, setActionLoading] = useState("");
 
   const token = localStorage.getItem("token");
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
-  // Fetch seller products
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -42,7 +43,6 @@ const SellerProducts = () => {
     }
   };
 
-  // Fetch product categories
   const fetchCategories = async () => {
     try {
       const res = await fetch(`${API_BASE}/products/categories`);
@@ -59,7 +59,6 @@ const SellerProducts = () => {
     fetchCategories();
   }, []);
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm({ ...form, [name]: type === "checkbox" ? checked : value });
@@ -69,7 +68,6 @@ const SellerProducts = () => {
     setImageFile(e.target.files[0]);
   };
 
-  // Submit product (create or update)
   const handleSubmit = async (e) => {
     e.preventDefault();
     const method = editingProduct ? "PUT" : "POST";
@@ -78,30 +76,21 @@ const SellerProducts = () => {
       : `${API_BASE}/products/seller`;
 
     const formData = new FormData();
-
     Object.entries(form).forEach(([key, value]) => {
-      if (value !== null && value !== undefined && value !== "") {
-        if (key === "tags") {
-          formData.append(key, value); // backend will split to array
-        } else {
-          formData.append(key, value);
-        }
+      if (value) {
+        formData.append(key, value);
       }
     });
-
     if (imageFile) formData.append("image", imageFile);
 
     try {
+      setActionLoading(editingProduct ? "Updating product..." : "Adding product...");
       const res = await fetch(url, {
         method,
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to save product");
-      }
+      if (!res.ok) throw new Error("Failed to save product");
 
       await fetchProducts();
       setForm({
@@ -119,17 +108,16 @@ const SellerProducts = () => {
       setImageFile(null);
       setEditingProduct(null);
       setOpenForm(false);
-      setSuccessMessage(
-        editingProduct ? "Product updated successfully!" : "Product added successfully!"
-      );
+      setSuccessMessage(editingProduct ? "Product updated successfully!" : "Product added successfully!");
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (err) {
       console.error("Error saving product:", err);
       alert(err.message);
+    } finally {
+      setActionLoading("");
     }
   };
 
-  // Edit product
   const handleEdit = (product) => {
     setEditingProduct(product);
     setForm({
@@ -147,10 +135,10 @@ const SellerProducts = () => {
     setOpenForm(true);
   };
 
-  // Delete product
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
     try {
+      setActionLoading("Deleting product...");
       const res = await fetch(`${API_BASE}/products/seller/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
@@ -160,6 +148,8 @@ const SellerProducts = () => {
     } catch (err) {
       console.error("Error deleting product:", err);
       alert(err.message);
+    } finally {
+      setActionLoading("");
     }
   };
 
@@ -168,6 +158,15 @@ const SellerProducts = () => {
       {successMessage && (
         <div className="mb-4 p-3 rounded-lg bg-green-100 text-green-700 font-medium">
           {successMessage}
+        </div>
+      )}
+
+      {actionLoading && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3">
+            <Loader2 className="animate-spin text-blue-600" />
+            <span className="font-medium">{actionLoading}</span>
+          </div>
         </div>
       )}
 
@@ -203,16 +202,9 @@ const SellerProducts = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {products.map((p) => (
-            <div
-              key={p.id}
-              className="border rounded-xl shadow hover:shadow-lg transition p-4 bg-white"
-            >
+            <div key={p.id} className="border rounded-xl shadow hover:shadow-lg transition p-4 bg-white">
               {p.imageUrl && (
-                <img
-                  src={p.imageUrl}
-                  alt={p.title}
-                  className="w-full h-40 object-cover rounded-lg"
-                />
+                <img src={p.imageUrl} alt={p.title} className="w-full h-40 object-cover rounded-lg" />
               )}
               <h3 className="text-lg font-bold mt-3">Name: {p.title}</h3>
               <p className="text-gray-700 font-medium">Price: ${p.price}</p>
@@ -221,17 +213,11 @@ const SellerProducts = () => {
               <p className="text-xs text-gray-500">Brand: {p.brand}</p>
               <p className="text-sm mt-2 line-clamp-3">Description: {p.description}</p>
               <div className="flex gap-2 mt-4">
-                <button
-                  onClick={() => handleEdit(p)}
-                  className="flex-1 px-3 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
-                >
-                  Edit
+                <button onClick={() => handleEdit(p)} className="flex-1 px-3 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 flex items-center justify-center gap-1">
+                  <Pencil size={16} /> Edit
                 </button>
-                <button
-                  onClick={() => handleDelete(p.id)}
-                  className="flex-1 px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                >
-                  Delete
+                <button onClick={() => handleDelete(p.id)} className="flex-1 px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center justify-center gap-1">
+                  <Trash2 size={16} /> Delete
                 </button>
               </div>
             </div>
@@ -262,51 +248,13 @@ const SellerProducts = () => {
               >
                 ✕
               </button>
-              <h3 className="text-xl font-bold mb-4">
-                {editingProduct ? "Edit Product" : "Add Product"}
-              </h3>
+              <h3 className="text-xl font-bold mb-4">{editingProduct ? "Edit Product" : "Add Product"}</h3>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <input
-                  type="text"
-                  name="title"
-                  placeholder="Product Title"
-                  value={form.title}
-                  onChange={handleChange}
-                  className="w-full border px-3 py-2 rounded-lg"
-                  required
-                />
-                <input
-                  type="text"
-                  name="sku"
-                  placeholder="SKU (unique product code)"
-                  value={form.sku}
-                  onChange={handleChange}
-                  className="w-full border px-3 py-2 rounded-lg"
-                  required
-                />
-                <input
-                  type="text"
-                  name="brand"
-                  placeholder="Brand"
-                  value={form.brand}
-                  onChange={handleChange}
-                  className="w-full border px-3 py-2 rounded-lg"
-                />
-                <input
-                  type="text"
-                  name="tags"
-                  placeholder="Tags (comma separated)"
-                  value={form.tags}
-                  onChange={handleChange}
-                  className="w-full border px-3 py-2 rounded-lg"
-                />
-                <select
-                  name="category"
-                  value={form.category}
-                  onChange={handleChange}
-                  className="w-full border px-3 py-2 rounded-lg"
-                  required
-                >
+                <input type="text" name="title" placeholder="Product Title" value={form.title} onChange={handleChange} className="w-full border px-3 py-2 rounded-lg" required />
+                <input type="text" name="sku" placeholder="SKU (unique product code)" value={form.sku} onChange={handleChange} className="w-full border px-3 py-2 rounded-lg" required />
+                <input type="text" name="brand" placeholder="Brand" value={form.brand} onChange={handleChange} className="w-full border px-3 py-2 rounded-lg" />
+                <input type="text" name="tags" placeholder="Tags (comma separated)" value={form.tags} onChange={handleChange} className="w-full border px-3 py-2 rounded-lg" />
+                <select name="category" value={form.category} onChange={handleChange} className="w-full border px-3 py-2 rounded-lg" required>
                   <option value="">Select Category</option>
                   {categories.map((cat) => (
                     <option key={cat} value={cat}>
@@ -314,57 +262,23 @@ const SellerProducts = () => {
                     </option>
                   ))}
                 </select>
-                <input
-                  type="number"
-                  name="price"
-                  placeholder="Price"
-                  value={form.price}
-                  onChange={handleChange}
-                  className="w-full border px-3 py-2 rounded-lg"
-                  required
-                />
-                <input
-                  type="number"
-                  name="quantity"
-                  placeholder="Quantity"
-                  value={form.quantity}
-                  onChange={handleChange}
-                  className="w-full border px-3 py-2 rounded-lg"
-                />
-                <textarea
-                  name="description"
-                  placeholder="Description"
-                  value={form.description}
-                  onChange={handleChange}
-                  className="w-full border px-3 py-2 rounded-lg"
-                />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="w-full"
-                />
-                <input
-                  type="text"
-                  name="imageUrl"
-                  placeholder="Or paste Image URL"
-                  value={form.imageUrl}
-                  onChange={handleChange}
-                  className="w-full border px-3 py-2 rounded-lg"
-                />
+                <input type="number" name="price" placeholder="Price" value={form.price} onChange={handleChange} className="w-full border px-3 py-2 rounded-lg" required />
+                <input type="number" name="quantity" placeholder="Quantity" value={form.quantity} onChange={handleChange} className="w-full border px-3 py-2 rounded-lg" />
+                <textarea name="description" placeholder="Description" value={form.description} onChange={handleChange} className="w-full border px-3 py-2 rounded-lg" />
+
+                <label className="w-full border-2 border-dashed rounded-lg flex flex-col items-center justify-center py-6 cursor-pointer hover:bg-gray-50">
+                  <Upload className="w-8 h-8 text-gray-500 mb-2" />
+                  <span className="text-sm text-gray-600">{imageFile ? imageFile.name : "Click to upload image"}</span>
+                  <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                </label>
+
+                <input type="text" name="imageUrl" placeholder="Or paste Image URL" value={form.imageUrl} onChange={handleChange} className="w-full border px-3 py-2 rounded-lg" />
+
                 <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    name="available"
-                    checked={form.available}
-                    onChange={handleChange}
-                  />
+                  <input type="checkbox" name="available" checked={form.available} onChange={handleChange} />
                   Available
                 </label>
-                <button
-                  type="submit"
-                  className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                >
+                <button type="submit" className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                   {editingProduct ? "Update Product" : "Add Product"}
                 </button>
               </form>
